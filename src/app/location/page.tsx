@@ -77,17 +77,17 @@ export default function LocationPage() {
       {/* Map section */}
       <section className="section-padding bg-plymouth-cream py-section">
         <div className="max-w-container-lg mx-auto">
-          <div className="aspect-[21/9] bg-plymouth-dark relative overflow-hidden mb-16">
-            <div className="absolute inset-0 bg-gradient-to-br from-plymouth-charcoal to-plymouth-dark flex items-center justify-center">
-              <div className="text-center">
-                <svg className="w-16 h-16 text-plymouth-gray mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
-                </svg>
-                <span className="text-plymouth-gray text-sm uppercase tracking-wider">
-                  Interactive Map — Embed Google Maps or Mapbox Here
-                </span>
-              </div>
-            </div>
+          <div className="aspect-[21/9] relative overflow-hidden mb-16" style={{ filter: "grayscale(1) contrast(1.05) brightness(0.9)" }}>
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2970.847954!2d-87.63217!3d41.87562!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x880e2ca9f29d0c53%3A0x5fee6eaefa67e17a!2s417%20S%20Dearborn%20St%2C%20Chicago%2C%20IL%2060605!5e0!3m2!1sen!2sus!4v1700000000000!5m2!1sen!2sus"
+              width="100%"
+              height="100%"
+              style={{ position: "absolute", inset: 0, border: 0 }}
+              allowFullScreen={false}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="The Plymouth Chicago — 417 S Dearborn St, Chicago IL"
+            />
           </div>
 
           {/* Neighborhood guides */}
