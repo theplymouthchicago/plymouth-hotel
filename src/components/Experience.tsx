@@ -1,3 +1,5 @@
+import { ScrollReveal } from "./ScrollReveal";
+
 const experiences = [
   {
     title: "Check In, Skip the Line",
@@ -25,9 +27,9 @@ export function Experience() {
   return (
     <section className="py-section section-padding bg-plymouth-black" id="experience">
       <div className="max-w-container-lg mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
           {/* Left column — header */}
-          <div className="lg:sticky lg:top-32">
+          <ScrollReveal className="lg:sticky lg:top-32">
             <p className="text-plymouth-gold font-body text-sm uppercase tracking-[0.3em] mb-4">
               The Experience
             </p>
@@ -41,25 +43,24 @@ export function Experience() {
               that matters. The result? A stay that fits around your life instead of
               the other way around.
             </p>
-          </div>
+          </ScrollReveal>
 
           {/* Right column — cards */}
-          <div className="space-y-8">
+          <div className="space-y-6 md:space-y-8">
             {experiences.map((exp, index) => (
-              <div
-                key={exp.title}
-                className="border-l-2 border-plymouth-gold/30 pl-8 py-2 hover:border-plymouth-gold transition-colors duration-300"
-              >
-                <span className="text-plymouth-gold/40 font-body text-sm mb-2 block">
-                  0{index + 1}
-                </span>
-                <h3 className="font-display text-display-sm text-plymouth-white mb-3">
-                  {exp.title}
-                </h3>
-                <p className="text-plymouth-silver leading-relaxed">
-                  {exp.description}
-                </p>
-              </div>
+              <ScrollReveal key={exp.title} delay={index * 120}>
+                <div className="border-l-2 border-plymouth-gold/30 pl-6 md:pl-8 py-2 hover:border-plymouth-gold transition-colors duration-300">
+                  <span className="text-plymouth-gold/40 font-body text-sm mb-2 block">
+                    0{index + 1}
+                  </span>
+                  <h3 className="font-display text-display-sm text-plymouth-white mb-3">
+                    {exp.title}
+                  </h3>
+                  <p className="text-plymouth-silver leading-relaxed">
+                    {exp.description}
+                  </p>
+                </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>

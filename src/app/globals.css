@@ -54,37 +54,107 @@
   }
 }
 
-/* Hero animations */
-@keyframes hero-zoom {
-  from { transform: scale(1.08); }
-  to { transform: scale(1.0); }
-}
-@keyframes fade-up {
-  from { opacity: 0; transform: translateY(24px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.animate-hero-zoom {
-  animation: hero-zoom 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-}
-.animate-fade-up {
-  animation: fade-up 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.3s both;
-}
-.animate-fade-in {
-  animation: fade-in 1.2s ease forwards;
-}
-
-/* Scroll reveal */
-.reveal {
+/* Scroll-triggered reveal animations */
+.scroll-reveal {
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
+  transform: translateY(32px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.reveal.visible {
+
+.scroll-reveal.revealed {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* Hero entrance animations */
+@keyframes heroFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroImageScale {
+  0% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes scrollPulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: translateX(-50%) scaleY(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) scaleY(1.15);
+  }
+}
+
+.hero-fade-in {
+  opacity: 0;
+  transform: translateY(24px);
+  animation: heroFadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.hero-fade-in-delay-1 {
+  animation-delay: 0.15s;
+}
+
+.hero-fade-in-delay-2 {
+  animation-delay: 0.3s;
+}
+
+.hero-fade-in-delay-3 {
+  animation-delay: 0.5s;
+}
+
+.hero-fade-in-delay-4 {
+  animation-delay: 0.7s;
+}
+
+.hero-image-zoom {
+  animation: heroImageScale 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.scroll-pulse {
+  animation: scrollPulse 2.5s ease-in-out infinite;
+}
+
+/* Masonry gallery */
+.gallery-masonry {
+  column-count: 1;
+  column-gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .gallery-masonry {
+    column-count: 2;
+  }
+}
+
+@media (min-width: 1024px) {
+  .gallery-masonry {
+    column-count: 3;
+    column-gap: 1rem;
+  }
+}
+
+.gallery-masonry-item {
+  break-inside: avoid;
+  margin-bottom: 0.75rem;
+}
+
+@media (min-width: 1024px) {
+  .gallery-masonry-item {
+    margin-bottom: 1rem;
+  }
 }

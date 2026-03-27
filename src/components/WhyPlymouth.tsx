@@ -1,3 +1,5 @@
+import { ScrollReveal } from "./ScrollReveal";
+
 const proofCards = [
   {
     stat: "2–4",
@@ -62,32 +64,31 @@ export function WhyPlymouth() {
   return (
     <section className="bg-plymouth-black py-section section-padding" id="why-plymouth">
       <div className="max-w-container-lg mx-auto">
-        <div className="text-center mb-16">
+        <ScrollReveal className="text-center mb-16">
           <p className="text-plymouth-gold font-body text-sm uppercase tracking-[0.3em] mb-4">
             The Proof
           </p>
           <h2 className="font-display text-display-lg text-plymouth-white text-balance">
             Why Plymouth
           </h2>
-        </div>
+        </ScrollReveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-          {proofCards.map((card) => (
-            <div
-              key={card.claim}
-              className="bg-plymouth-charcoal border border-plymouth-dark p-8 flex flex-col group hover:border-plymouth-gold/30 transition-colors duration-300"
-            >
-              <div className="text-plymouth-gold mb-5">{card.icon}</div>
-              <p className="font-display text-display-sm text-plymouth-white mb-1">
-                {card.stat}
-              </p>
-              <p className="text-plymouth-gold font-body text-sm uppercase tracking-wider mb-4">
-                {card.claim}
-              </p>
-              <p className="text-plymouth-silver text-sm leading-relaxed">
-                {card.description}
-              </p>
-            </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
+          {proofCards.map((card, index) => (
+            <ScrollReveal key={card.claim} delay={index * 80}>
+              <div className="bg-plymouth-charcoal border border-plymouth-dark p-6 md:p-8 flex flex-col group hover:border-plymouth-gold/30 transition-colors duration-300 h-full">
+                <div className="text-plymouth-gold mb-4 md:mb-5">{card.icon}</div>
+                <p className="font-display text-display-sm text-plymouth-white mb-1">
+                  {card.stat}
+                </p>
+                <p className="text-plymouth-gold font-body text-xs md:text-sm uppercase tracking-wider mb-3 md:mb-4">
+                  {card.claim}
+                </p>
+                <p className="text-plymouth-silver text-xs md:text-sm leading-relaxed">
+                  {card.description}
+                </p>
+              </div>
+            </ScrollReveal>
           ))}
         </div>
       </div>

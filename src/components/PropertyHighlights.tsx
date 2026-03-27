@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { ScrollReveal } from "./ScrollReveal";
 
 const highlights = [
   {
@@ -85,42 +86,41 @@ export function PropertyHighlights() {
   return (
     <section className="py-section section-padding bg-plymouth-cream" id="highlights">
       <div className="max-w-container-lg mx-auto">
-        <div className="text-center mb-16">
+        <ScrollReveal className="text-center mb-16">
           <p className="text-plymouth-gold font-body text-sm uppercase tracking-[0.3em] mb-4">
             What&apos;s Included
           </p>
           <h2 className="font-display text-display-lg text-plymouth-black text-balance">
             Everything You Need. Nothing You Don&apos;t.
           </h2>
-        </div>
+        </ScrollReveal>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {highlights.map((item) => (
-            <div
-              key={item.title}
-              className="group text-center p-8"
-            >
-              {"image" in item && item.image && (
-                <div className="relative w-full aspect-[4/3] mb-6 overflow-hidden">
-                  <Image
-                    src={item.image}
-                    alt={item.imageAlt || ""}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                  />
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+          {highlights.map((item, index) => (
+            <ScrollReveal key={item.title} delay={index * 60}>
+              <div className="group text-center p-4 md:p-8">
+                {"image" in item && item.image && (
+                  <div className="relative w-full aspect-[4/3] mb-6 overflow-hidden">
+                    <Image
+                      src={item.image}
+                      alt={item.imageAlt || ""}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
+                    />
+                  </div>
+                )}
+                <div className="inline-flex items-center justify-center w-14 h-14 md:w-16 md:h-16 rounded-full bg-plymouth-black text-plymouth-gold mb-4 md:mb-6 group-hover:bg-plymouth-gold group-hover:text-plymouth-black transition-colors duration-300">
+                  {item.icon}
                 </div>
-              )}
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-plymouth-black text-plymouth-gold mb-6 group-hover:bg-plymouth-gold group-hover:text-plymouth-black transition-colors duration-300">
-                {item.icon}
+                <h3 className="font-display text-lg md:text-xl text-plymouth-black mb-2 md:mb-3">
+                  {item.title}
+                </h3>
+                <p className="text-plymouth-gray text-xs md:text-sm leading-relaxed">
+                  {item.description}
+                </p>
               </div>
-              <h3 className="font-display text-xl text-plymouth-black mb-3">
-                {item.title}
-              </h3>
-              <p className="text-plymouth-gray text-sm leading-relaxed">
-                {item.description}
-              </p>
-            </div>
+            </ScrollReveal>
           ))}
         </div>
       </div>

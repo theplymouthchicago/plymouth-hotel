@@ -4,8 +4,11 @@ import Script from "next/script";
 
 export function BookingWidget() {
   return (
-    <section className="py-section section-padding bg-plymouth-black" id="booking">
-      <div className="max-w-container mx-auto">
+    <section className="py-section section-padding bg-plymouth-black relative overflow-hidden" id="booking">
+      {/* Subtle gold accent */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-px bg-gradient-to-r from-transparent via-plymouth-gold/30 to-transparent" />
+
+      <div className="max-w-container mx-auto relative z-10">
         <div className="text-center mb-10">
           <p className="text-plymouth-gold font-body text-sm uppercase tracking-[0.3em] mb-4">
             Reserve
