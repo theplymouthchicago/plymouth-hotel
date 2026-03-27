@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Location",
-  description:
-    "The Plymouth Hotel is located in the heart of Chicago — walking distance to the best dining, nightlife, culture, and transit the city has to offer.",
+  title: "Location | Printer's Row, Chicago Loop",
+  description: "The Plymouth Chicago is located at 417 S Dearborn St in Printer's Row — steps from Millennium Park, The Art Institute, the L, and all that makes Chicago great. Walk everywhere.",
 };
 
 const neighborhoods = [

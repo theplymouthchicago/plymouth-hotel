@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "The Experience",
+  title: "The Experience | Boutique Suites in Chicago's Loop",
+  description: "Life at The Plymouth is what a hotel stay should feel like — spacious, curated, self-directed. Full kitchens, separate bedrooms, rooftop access, and zero resort fees.",
   description:
     "What makes The Plymouth Hotel different. Self check-in, full kitchens, curated design, and a stay built around how you actually travel.",
 };

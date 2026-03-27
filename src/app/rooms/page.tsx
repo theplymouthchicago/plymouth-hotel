@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 
 export const metadata: Metadata = {
-  title: "Rooms & Suites | The Plymouth Chicago",
+  title: "Rooms & Suites — 2, 3 & 4 Bedroom Suites | The Plymouth Chicago",
   description:
     "The Plymouth Chicago offers 2, 3, and 4 bedroom suites in the Loop. Full kitchens, rooftop access, instant booking. 417 S Dearborn St.",
 };
