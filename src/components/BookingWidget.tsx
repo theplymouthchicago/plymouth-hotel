@@ -35,8 +35,6 @@ const ROOM_TYPES = [
   },
 ];
 
-type FormState = "idle" | "sending" | "sent" | "error";
-
 export function BookingWidget() {
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
@@ -45,7 +43,7 @@ export function BookingWidget() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [formState, setFormState] = useState<FormState>("idle");
+  const [submitted, setSubmitted] = useState(false);
 
   const today = new Date().toISOString().split("T")[0];
   const nights =
@@ -53,20 +51,15 @@ export function BookingWidget() {
       ? Math.round((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / 86_400_000)
       : 0;
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setFormState("sending");
-    try {
-      const res = await fetch("/api/inquire", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone, checkIn, checkOut, guests, room: selectedRoom }),
-      });
-      if (!res.ok) throw new Error("Failed");
-      setFormState("sent");
-    } catch {
-      setFormState("error");
-    }
+    const room = selectedRoom || "Not selected";
+    const subject = encodeURIComponent(`Reservation Request — ${room} | ${checkIn || "TBD"} to ${checkOut || "TBD"}`);
+    const body = encodeURIComponent(
+      `Hi Plymouth Chicago Team,\n\nI'd like to reserve a room.\n\nName: ${name}\nPhone: ${phone || "N/A"}\nRoom Type: ${room}\nCheck In: ${checkIn || "TBD"}\nCheck Out: ${checkOut || "TBD"}\nGuests: ${guests}\n\nPlease confirm availability and send payment details.\n\nThank you!`
+    );
+    window.location.href = `mailto:info@theplymouthchicago.com?subject=${subject}&body=${body}&reply-to=${encodeURIComponent(email)}`;
+    setSubmitted(true);
   }
 
   return (
@@ -107,8 +100,8 @@ export function BookingWidget() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           {ROOM_TYPES.map((room) => (
             <div key={room.type}
-              className={`bg-white shadow-sm border-2 flex flex-col cursor-pointer transition-colors ${selectedRoom === room.type ? "border-plymouth-gold" : "border-gray-100"}`}
-              onClick={() => setSelectedRoom(room.type)}>
+              onClick={() => setSelectedRoom(room.type)}
+              className={`bg-white shadow-sm border-2 flex flex-col cursor-pointer transition-colors ${selectedRoom === room.type ? "border-plymouth-gold" : "border-gray-100 hover:border-gray-300"}`}>
               <div className="h-48 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
                 <span className="font-display text-3xl text-gray-500">{room.type}</span>
               </div>
@@ -119,12 +112,12 @@ export function BookingWidget() {
                 <h3 className="font-display text-xl text-plymouth-black mb-3">{room.label}</h3>
                 <p className="text-plymouth-charcoal text-sm mb-4 flex-1">{room.description}</p>
                 {nights > 0 && (
-                  <p className="text-xs text-plymouth-charcoal mb-4">{nights} {nights === 1 ? "night" : "nights"} selected</p>
+                  <p className="text-xs text-plymouth-charcoal mb-3">{nights} {nights === 1 ? "night" : "nights"} selected</p>
                 )}
                 <button
                   onClick={(e) => { e.stopPropagation(); setSelectedRoom(room.type); const el = document.getElementById("inquiry-form"); if(el) el.scrollIntoView({behavior:"smooth"}); }}
-                  className="block text-center bg-plymouth-black text-white py-3 text-sm uppercase tracking-widest hover:bg-plymouth-gold transition-colors w-full">
-                  Select Room
+                  className={`w-full py-3 text-sm uppercase tracking-widest transition-colors ${selectedRoom === room.type ? "bg-plymouth-gold text-white" : "bg-plymouth-black text-white hover:bg-plymouth-gold"}`}>
+                  {selectedRoom === room.type ? "Selected ✓" : "Select Room"}
                 </button>
               </div>
             </div>
@@ -133,64 +126,65 @@ export function BookingWidget() {
 
         {/* Inquiry Form */}
         <div id="inquiry-form" className="bg-white shadow-md rounded-sm p-8 max-w-2xl mx-auto">
-          <h3 className="font-display text-2xl text-plymouth-black mb-2">
-            {selectedRoom ? `Reserve Your ${selectedRoom} Suite` : "Request a Reservation"}
-          </h3>
-          <p className="text-plymouth-charcoal text-sm mb-6">
-            Fill out the form below and our team will confirm your reservation within 1 hour.
-          </p>
-
-          {formState === "sent" ? (
+          {submitted ? (
             <div className="text-center py-8">
-              <p className="text-2xl mb-2">✓</p>
-              <p className="font-display text-xl text-plymouth-black mb-2">Request Received!</p>
-              <p className="text-plymouth-charcoal text-sm">
-                We&apos;ll reach out to {email} within 1 hour to confirm your stay.
+              <p className="text-3xl mb-3">✓</p>
+              <p className="font-display text-2xl text-plymouth-black mb-3">You&apos;re almost there!</p>
+              <p className="text-plymouth-charcoal">
+                Your email client opened with your request pre-filled. Hit send and our team will confirm within 1 hour.
+              </p>
+              <p className="text-sm text-gray-400 mt-4">
+                Or call us directly: <a href="tel:7088660029" className="underline text-plymouth-black">(708) 866-0029</a>
               </p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs uppercase tracking-widest text-plymouth-charcoal mb-2">Full Name *</label>
-                  <input required value={name} onChange={(e) => setName(e.target.value)}
-                    className="w-full border border-gray-200 rounded-sm px-4 py-3 text-plymouth-black focus:outline-none focus:border-plymouth-gold"
-                    placeholder="Jane Smith" />
-                </div>
-                <div>
-                  <label className="block text-xs uppercase tracking-widest text-plymouth-charcoal mb-2">Email *</label>
-                  <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                    className="w-full border border-gray-200 rounded-sm px-4 py-3 text-plymouth-black focus:outline-none focus:border-plymouth-gold"
-                    placeholder="jane@example.com" />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs uppercase tracking-widest text-plymouth-charcoal mb-2">Phone</label>
-                  <input value={phone} onChange={(e) => setPhone(e.target.value)}
-                    className="w-full border border-gray-200 rounded-sm px-4 py-3 text-plymouth-black focus:outline-none focus:border-plymouth-gold"
-                    placeholder="(312) 555-0100" />
-                </div>
-                <div>
-                  <label className="block text-xs uppercase tracking-widest text-plymouth-charcoal mb-2">Room Type</label>
-                  <select value={selectedRoom ?? ""} onChange={(e) => setSelectedRoom(e.target.value)}
-                    className="w-full border border-gray-200 rounded-sm px-4 py-3 text-plymouth-black focus:outline-none focus:border-plymouth-gold">
-                    <option value="">Select a room</option>
-                    {ROOM_TYPES.map((r) => <option key={r.type} value={r.type}>{r.label}</option>)}
-                  </select>
-                </div>
-              </div>
-              {formState === "error" && (
-                <p className="text-red-600 text-sm">Something went wrong. Please email us at info@theplymouthchicago.com</p>
-              )}
-              <button type="submit" disabled={formState === "sending"}
-                className="w-full bg-plymouth-black text-white py-4 text-sm uppercase tracking-widest hover:bg-plymouth-gold transition-colors disabled:opacity-50">
-                {formState === "sending" ? "Sending..." : "Request Reservation"}
-              </button>
-              <p className="text-center text-xs text-gray-400">
-                Or call us at <a href="tel:7088660029" className="underline">(708) 866-0029</a>
+            <>
+              <h3 className="font-display text-2xl text-plymouth-black mb-2">
+                {selectedRoom ? `Reserve Your ${selectedRoom} Suite` : "Request a Reservation"}
+              </h3>
+              <p className="text-plymouth-charcoal text-sm mb-6">
+                Fill out the form and we&apos;ll confirm your stay within 1 hour.
               </p>
-            </form>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs uppercase tracking-widest text-plymouth-charcoal mb-2">Full Name *</label>
+                    <input required value={name} onChange={(e) => setName(e.target.value)}
+                      className="w-full border border-gray-200 rounded-sm px-4 py-3 text-plymouth-black focus:outline-none focus:border-plymouth-gold"
+                      placeholder="Jane Smith" />
+                  </div>
+                  <div>
+                    <label className="block text-xs uppercase tracking-widest text-plymouth-charcoal mb-2">Email *</label>
+                    <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                      className="w-full border border-gray-200 rounded-sm px-4 py-3 text-plymouth-black focus:outline-none focus:border-plymouth-gold"
+                      placeholder="jane@example.com" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs uppercase tracking-widest text-plymouth-charcoal mb-2">Phone</label>
+                    <input value={phone} onChange={(e) => setPhone(e.target.value)}
+                      className="w-full border border-gray-200 rounded-sm px-4 py-3 text-plymouth-black focus:outline-none focus:border-plymouth-gold"
+                      placeholder="(312) 555-0100" />
+                  </div>
+                  <div>
+                    <label className="block text-xs uppercase tracking-widest text-plymouth-charcoal mb-2">Room Type</label>
+                    <select value={selectedRoom ?? ""} onChange={(e) => setSelectedRoom(e.target.value)}
+                      className="w-full border border-gray-200 rounded-sm px-4 py-3 text-plymouth-black focus:outline-none focus:border-plymouth-gold">
+                      <option value="">Select a room</option>
+                      {ROOM_TYPES.map((r) => <option key={r.type} value={r.type}>{r.label}</option>)}
+                    </select>
+                  </div>
+                </div>
+                <button type="submit"
+                  className="w-full bg-plymouth-black text-white py-4 text-sm uppercase tracking-widest hover:bg-plymouth-gold transition-colors">
+                  Send Reservation Request
+                </button>
+                <p className="text-center text-xs text-gray-400">
+                  Or call us: <a href="tel:7088660029" className="underline text-plymouth-black">(708) 866-0029</a>
+                </p>
+              </form>
+            </>
           )}
         </div>
       </div>
