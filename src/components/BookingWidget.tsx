@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+const BOOKING_BASE = "https://theplymouthchicago.guestybookings.com/en/properties";
+
 const ROOM_TYPES = [
   {
     type: "2BR",
@@ -35,32 +37,23 @@ const ROOM_TYPES = [
   },
 ];
 
+function buildBookingUrl(listingId: string, checkIn: string, checkOut: string, guests: number) {
+  const params = new URLSearchParams({ minOccupancy: String(guests) });
+  if (checkIn) params.set("startDate", checkIn);
+  if (checkOut) params.set("endDate", checkOut);
+  return `${BOOKING_BASE}/${listingId}?${params}`;
+}
+
 export function BookingWidget() {
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [guests, setGuests] = useState(2);
-  const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [submitted, setSubmitted] = useState(false);
 
   const today = new Date().toISOString().split("T")[0];
   const nights =
     checkIn && checkOut
       ? Math.round((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / 86_400_000)
       : 0;
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const room = selectedRoom || "Not selected";
-    const subject = encodeURIComponent(`Reservation Request — ${room} | ${checkIn || "TBD"} to ${checkOut || "TBD"}`);
-    const body = encodeURIComponent(
-      `Hi Plymouth Chicago Team,\n\nI'd like to reserve a room.\n\nName: ${name}\nPhone: ${phone || "N/A"}\nRoom Type: ${room}\nCheck In: ${checkIn || "TBD"}\nCheck Out: ${checkOut || "TBD"}\nGuests: ${guests}\n\nPlease confirm availability and send payment details.\n\nThank you!`
-    );
-    window.location.href = `mailto:info@theplymouthchicago.com?subject=${subject}&body=${body}&reply-to=${encodeURIComponent(email)}`;
-    setSubmitted(true);
-  }
 
   return (
     <section className="py-section section-padding bg-plymouth-offwhite" id="booking">
@@ -97,11 +90,9 @@ export function BookingWidget() {
         </div>
 
         {/* Room Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {ROOM_TYPES.map((room) => (
-            <div key={room.type}
-              onClick={() => setSelectedRoom(room.type)}
-              className={`bg-white shadow-sm border-2 flex flex-col cursor-pointer transition-colors ${selectedRoom === room.type ? "border-plymouth-gold" : "border-gray-100 hover:border-gray-300"}`}>
+            <div key={room.type} className="bg-white shadow-sm border border-gray-100 flex flex-col hover:shadow-md transition-shadow">
               <div className="h-48 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
                 <span className="font-display text-3xl text-gray-500">{room.type}</span>
               </div>
@@ -112,81 +103,25 @@ export function BookingWidget() {
                 <h3 className="font-display text-xl text-plymouth-black mb-3">{room.label}</h3>
                 <p className="text-plymouth-charcoal text-sm mb-4 flex-1">{room.description}</p>
                 {nights > 0 && (
-                  <p className="text-xs text-plymouth-charcoal mb-3">{nights} {nights === 1 ? "night" : "nights"} selected</p>
+                  <p className="text-sm font-medium text-plymouth-black mb-4">
+                    {nights} {nights === 1 ? "night" : "nights"}
+                  </p>
                 )}
-                <button
-                  onClick={(e) => { e.stopPropagation(); setSelectedRoom(room.type); const el = document.getElementById("inquiry-form"); if(el) el.scrollIntoView({behavior:"smooth"}); }}
-                  className={`w-full py-3 text-sm uppercase tracking-widest transition-colors ${selectedRoom === room.type ? "bg-plymouth-gold text-white" : "bg-plymouth-black text-white hover:bg-plymouth-gold"}`}>
-                  {selectedRoom === room.type ? "Selected ✓" : "Select Room"}
-                </button>
+                <a
+                  href={buildBookingUrl(room.listingId, checkIn, checkOut, guests)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-center bg-plymouth-black text-white py-3 text-sm uppercase tracking-widest hover:bg-plymouth-gold transition-colors">
+                  Book Now
+                </a>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Inquiry Form */}
-        <div id="inquiry-form" className="bg-white shadow-md rounded-sm p-8 max-w-2xl mx-auto">
-          {submitted ? (
-            <div className="text-center py-8">
-              <p className="text-3xl mb-3">✓</p>
-              <p className="font-display text-2xl text-plymouth-black mb-3">You&apos;re almost there!</p>
-              <p className="text-plymouth-charcoal">
-                Your email client opened with your request pre-filled. Hit send and our team will confirm within 1 hour.
-              </p>
-              <p className="text-sm text-gray-400 mt-4">
-                Or call us directly: <a href="tel:7088660029" className="underline text-plymouth-black">(708) 866-0029</a>
-              </p>
-            </div>
-          ) : (
-            <>
-              <h3 className="font-display text-2xl text-plymouth-black mb-2">
-                {selectedRoom ? `Reserve Your ${selectedRoom} Suite` : "Request a Reservation"}
-              </h3>
-              <p className="text-plymouth-charcoal text-sm mb-6">
-                Fill out the form and we&apos;ll confirm your stay within 1 hour.
-              </p>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs uppercase tracking-widest text-plymouth-charcoal mb-2">Full Name *</label>
-                    <input required value={name} onChange={(e) => setName(e.target.value)}
-                      className="w-full border border-gray-200 rounded-sm px-4 py-3 text-plymouth-black focus:outline-none focus:border-plymouth-gold"
-                      placeholder="Jane Smith" />
-                  </div>
-                  <div>
-                    <label className="block text-xs uppercase tracking-widest text-plymouth-charcoal mb-2">Email *</label>
-                    <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                      className="w-full border border-gray-200 rounded-sm px-4 py-3 text-plymouth-black focus:outline-none focus:border-plymouth-gold"
-                      placeholder="jane@example.com" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs uppercase tracking-widest text-plymouth-charcoal mb-2">Phone</label>
-                    <input value={phone} onChange={(e) => setPhone(e.target.value)}
-                      className="w-full border border-gray-200 rounded-sm px-4 py-3 text-plymouth-black focus:outline-none focus:border-plymouth-gold"
-                      placeholder="(312) 555-0100" />
-                  </div>
-                  <div>
-                    <label className="block text-xs uppercase tracking-widest text-plymouth-charcoal mb-2">Room Type</label>
-                    <select value={selectedRoom ?? ""} onChange={(e) => setSelectedRoom(e.target.value)}
-                      className="w-full border border-gray-200 rounded-sm px-4 py-3 text-plymouth-black focus:outline-none focus:border-plymouth-gold">
-                      <option value="">Select a room</option>
-                      {ROOM_TYPES.map((r) => <option key={r.type} value={r.type}>{r.label}</option>)}
-                    </select>
-                  </div>
-                </div>
-                <button type="submit"
-                  className="w-full bg-plymouth-black text-white py-4 text-sm uppercase tracking-widest hover:bg-plymouth-gold transition-colors">
-                  Send Reservation Request
-                </button>
-                <p className="text-center text-xs text-gray-400">
-                  Or call us: <a href="tel:7088660029" className="underline text-plymouth-black">(708) 866-0029</a>
-                </p>
-              </form>
-            </>
-          )}
-        </div>
+        <p className="text-center text-xs text-gray-400 mt-8">
+          Instant booking &middot; Secure checkout &middot; Powered by Guesty
+        </p>
       </div>
     </section>
   );
