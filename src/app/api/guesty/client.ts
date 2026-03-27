@@ -36,6 +36,8 @@ const fetchToken = unstable_cache(
 );
 
 export async function getToken(): Promise<string> {
+  // Static token env var bypasses rate-limited endpoint
+  if (process.env.GUESTY_STATIC_TOKEN) return process.env.GUESTY_STATIC_TOKEN;
   return fetchToken();
 }
 
