@@ -54,8 +54,8 @@ export function Hero() {
       <div className="absolute bottom-0 left-0 right-0 z-10 border-t border-white/10">
         <div className="section-padding max-w-container-lg mx-auto grid grid-cols-3 md:grid-cols-5 divide-x divide-white/10">
           {[
-            { value: "18", label: "Suites" },
-            { value: "6–11", label: "Floors" },
+            { value: "30", label: "Suites" },
+            { value: "2–11", label: "Floors" },
             { value: "1899", label: "Built" },
             { value: "2BR–4BR", label: "Sizes" },
             { value: "Loop", label: "Location" },
