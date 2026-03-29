@@ -8,6 +8,7 @@ import { Testimonials } from "@/components/Testimonials";
 import { Location } from "@/components/Location";
 import { FAQ } from "@/components/FAQ";
 import { CTABanner } from "@/components/CTABanner";
+import { ReviewCTA } from "@/components/ReviewCTA";
 import { BookingWidget } from "@/components/BookingWidget";
 
 
@@ -39,6 +40,7 @@ export default function Home() {
       <FAQ />
       <BookingWidget />
       <CTABanner />
+      <ReviewCTA />
     </>
   );
 }
