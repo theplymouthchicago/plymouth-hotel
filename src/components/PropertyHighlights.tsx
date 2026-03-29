@@ -1,7 +1,16 @@
 import Image from "next/image";
 import { ScrollReveal } from "./ScrollReveal";
 
-const highlights = [
+type Highlight = {
+  title: string;
+  description: string;
+  image?: string;
+  imageAlt?: string;
+  icon: React.ReactNode;
+};
+
+
+const highlights: Highlight[] = [
   {
     title: "2, 3 & 4 Bedroom Layouts",
     description: "Every unit has multiple private bedrooms with real doors. Pick the size that fits your group.",
@@ -98,8 +107,8 @@ export function PropertyHighlights() {
                 {"image" in item && item.image && (
                   <div className="relative w-full aspect-[4/3] mb-6 overflow-hidden">
                     <Image
-                      src={item.image}
-                      alt={item.imageAlt || ""}
+                      src={item.image as string}
+                      alt={(item.imageAlt as string) || ""}
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                       sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
