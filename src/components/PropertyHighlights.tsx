@@ -33,8 +33,6 @@ const highlights = [
   {
     title: "Private Bedrooms",
     description: "No shared walls with strangers. Every bedroom is yours and yours alone.",
-    image: "/images/bedroom-red.jpg",
-    imageAlt: "Red accent wall bedroom with tufted headboard and clean white bedding",
     icon: (
       <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
@@ -54,8 +52,6 @@ const highlights = [
   {
     title: "Smart Self Check-In",
     description: "Digital keys, smart locks, zero wait time. Walk in like you own the place.",
-    image: "/images/door-901.jpg",
-    imageAlt: "Illuminated room number 901 door sign with smart lock",
     icon: (
       <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
