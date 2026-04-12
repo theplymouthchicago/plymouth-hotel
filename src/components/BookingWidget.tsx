@@ -4,7 +4,7 @@ import Script from "next/script";
 
 export function BookingWidget() {
   return (
-    <section className="py-section section-padding bg-plymouth-black relative overflow-hidden" id="booking">
+    <section className="py-section section-padding bg-plymouth-black relative" id="booking">
       {/* Subtle gold accent */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-px bg-gradient-to-r from-transparent via-plymouth-gold/30 to-transparent" />
 
