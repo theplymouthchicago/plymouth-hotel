@@ -1,8 +1,55 @@
 "use client";
 
 import Script from "next/script";
+import { useEffect } from "react";
 
 export function BookingWidget() {
+  useEffect(() => {
+    let observer: MutationObserver | null = null;
+    let clickHandler: ((e: MouseEvent) => void) | null = null;
+    let isSelecting = false;
+
+    const setup = () => {
+      const picker = document.querySelector(".lightpick") as HTMLElement;
+      if (!picker) return false;
+
+      // Prevent Lightpick from hiding the calendar while user is selecting dates
+      observer = new MutationObserver(() => {
+        if (isSelecting && picker.classList.contains("is-hidden")) {
+          picker.classList.remove("is-hidden");
+        }
+      });
+
+      observer.observe(picker, {
+        attributes: true,
+        attributeFilter: ["class"],
+      });
+
+      clickHandler = (e: MouseEvent) => {
+        const target = e.target as HTMLElement;
+        const isCalendarClick =
+          target.closest(".lightpick") ||
+          target.closest(".__super-input") ||
+          target.closest(".guesty-search-widget__datepicker");
+
+        isSelecting = !!isCalendarClick;
+      };
+
+      document.addEventListener("click", clickHandler);
+      return true;
+    };
+
+    const interval = setInterval(() => {
+      if (setup()) clearInterval(interval);
+    }, 500);
+
+    return () => {
+      clearInterval(interval);
+      observer?.disconnect();
+      if (clickHandler) document.removeEventListener("click", clickHandler);
+    };
+  }, []);
+
   return (
     <section className="py-section section-padding bg-plymouth-black relative" id="booking">
       {/* Subtle gold accent */}

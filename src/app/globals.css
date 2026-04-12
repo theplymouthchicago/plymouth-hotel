@@ -54,6 +54,15 @@
   }
 }
 
+/* Guesty Lightpick calendar */
+.lightpick {
+  z-index: 100 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4) !important;
+  border: 1px solid rgba(200, 164, 94, 0.15) !important;
+  overflow: hidden !important;
+}
+
 /* Scroll-triggered reveal animations */
 .scroll-reveal {
   opacity: 0;
