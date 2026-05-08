@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { ROOMS } from "@/lib/rooms";
+import { RoomBookingControls } from "@/components/booking/RoomBookingControls";
 
 export const metadata: Metadata = {
   title: "Rooms & Suites — 2, 3 & 4 Bedroom Suites | The Plymouth Chicago",
@@ -7,76 +9,19 @@ export const metadata: Metadata = {
     "The Plymouth Chicago offers 2, 3, and 4 bedroom suites in the Loop. Full kitchens, rooftop access, instant booking. 417 S Dearborn St.",
 };
 
-const BOOKING_BASE = "https://theplymouthchicago.guestybookings.com/en/properties";
-
-const rooms = [
-  {
-    name: "The Two Bedroom",
-    tagline: "More space than a hotel. More style than an Airbnb.",
-    sqft: "Up to 4 guests",
-    price: "2 bedrooms · 1 bath",
-    listingId: "69b8610659a0a7001528058c",
-    description:
-      "Two private bedrooms, full kitchen, living room, and city views. Built for couples, small families, or business pairs who refuse to compromise on space or design.",
-    features: [
-      "2 private bedrooms",
-      "Full kitchen with dishwasher",
-      "Living & dining area",
-      "High-speed WiFi",
-      "55\" Smart TV",
-      "In-unit washer/dryer",
-      "Self check-in",
-      "Rooftop access",
-    ],
-    idealFor: "Couples · Small Families · Business Pairs",
-    image: "/images/living-green.jpg",
-    alt: "Two bedroom suite living room with teal mural and dining table",
-  },
-  {
-    name: "The Three Bedroom",
-    tagline: "Bring the whole crew. Nobody has to share a bed.",
-    sqft: "Up to 6 guests",
-    price: "3 bedrooms · 2 baths",
-    listingId: "69b863afab91d0002330efdb",
-    description:
-      "Three private bedrooms, two full bathrooms, and an open living space designed for groups who want to be together without being on top of each other. Chicago's most underrated group stay.",
-    features: [
-      "3 private bedrooms",
-      "2 full bathrooms",
-      "Full kitchen",
-      "Open living & dining area",
-      "Smart TVs throughout",
-      "In-unit washer/dryer",
-      "Self check-in",
-      "Rooftop + lobby lounge",
-    ],
-    idealFor: "Friend Groups · Bachelorette Parties · Family Travel",
-    image: "/images/living-dark.jpg",
-    alt: "Three bedroom suite with dark charcoal mural and large windows",
-  },
-  {
-    name: "The Four Bedroom",
-    tagline: "The whole floor. All yours.",
-    sqft: "Up to 10 guests",
-    price: "4 bedrooms · 2 baths",
-    listingId: "69b866a2139149001c905bfa",
-    description:
-      "Four bedrooms for up to 10 guests. Maximum space, maximum privacy. The largest layout in the building — ideal for executive retreats, large family gatherings, or groups that want to arrive together and leave together.",
-    features: [
-      "4 private bedrooms",
-      "2 full bathrooms",
-      "Full kitchen",
-      "Dining table for 8+",
-      "Multiple living areas",
-      "In-unit washer/dryer",
-      "Self check-in",
-      "Rooftop, lobby lounge, conference room",
-    ],
-    idealFor: "Large Groups · Corporate Retreats · Special Events",
-    image: "/images/kitchen-navy.jpg",
-    alt: "Four bedroom suite open kitchen and living area with navy accents",
-  },
-];
+const rooms = ROOMS.map((r) => ({
+  slug: r.slug,
+  name: r.name,
+  tagline: r.tagline,
+  sqft: `Up to ${r.maxGuests} guests`,
+  price: `${r.bedrooms} bedroom${r.bedrooms > 1 ? "s" : ""} · ${r.bathrooms} bath${r.bathrooms > 1 ? "s" : ""}`,
+  description: r.description,
+  features: r.features,
+  idealFor: r.idealFor,
+  image: r.image,
+  alt: r.alt,
+  maxGuests: r.maxGuests,
+}));
 
 export default function RoomsPage() {
   return (
@@ -152,15 +97,7 @@ export default function RoomsPage() {
                   ))}
                 </div>
 
-                <a
-                  href={`${BOOKING_BASE}/${room.listingId}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-3 bg-plymouth-black text-white px-8 py-4 text-sm uppercase tracking-[0.2em] hover:bg-plymouth-gold hover:text-black transition-all duration-300 group"
-                >
-                  Book This Suite
-                  <span className="group-hover:translate-x-1 transition-transform">→</span>
-                </a>
+                <RoomBookingControls roomSlug={room.slug} maxGuests={room.maxGuests} />
               </div>
             </div>
           </div>
