@@ -131,7 +131,7 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
-function MissingParams({ roomSlug, message }: { roomSlug: string; message?: string }) {
+function MissingParams({ message }: { roomSlug: string; message?: string }) {
   return (
     <main className="bg-plymouth-cream min-h-screen pt-32 pb-20 section-padding">
       <div className="max-w-container mx-auto text-center">
@@ -148,7 +148,7 @@ function MissingParams({ roomSlug, message }: { roomSlug: string; message?: stri
   );
 }
 
-function QuoteError({ roomSlug, message }: { roomSlug: string; message: string }) {
+function QuoteError({ message }: { roomSlug: string; message: string }) {
   return (
     <main className="bg-plymouth-cream min-h-screen pt-32 pb-20 section-padding">
       <div className="max-w-container mx-auto text-center max-w-2xl">

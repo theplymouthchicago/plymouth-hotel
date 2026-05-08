@@ -96,7 +96,6 @@ export function CheckoutForm({ quote, roomName }: Props) {
 }
 
 function PayStep({
-  clientSecret,
   reservationId,
   guest,
   roomName,
