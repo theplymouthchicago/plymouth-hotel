@@ -55,12 +55,14 @@ export async function guestyOpenFetch(path: string, opts?: RequestInit) {
     data = { raw: text };
   }
   if (!res.ok) {
-    const err = data as { error?: { message?: string }; message?: string };
-    throw new GuestyApiError(
-      err?.error?.message || err?.message || `Guesty Open API ${res.status}`,
-      res.status,
-      data
-    );
+    const err = data as { error?: { message?: string; data?: unknown }; message?: string };
+    const errData = err?.error?.data;
+    const dataDetail = Array.isArray(errData) ? errData.join("; ") : typeof errData === "string" ? errData : "";
+    const detail =
+      [err?.error?.message, dataDetail, err?.message].filter(Boolean).join(" — ") ||
+      (text ? text.slice(0, 300) : `Guesty Open API ${res.status}`);
+    console.error(`Guesty Open API ${res.status} on ${path}:`, text.slice(0, 500));
+    throw new GuestyApiError(detail, res.status, data);
   }
   return data;
 }

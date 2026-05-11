@@ -74,32 +74,44 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Normalize phone to E.164-ish (digits with leading +). Guesty accepts free-form but cleaner data downstream.
+  const rawPhone = (guest.phone || "").trim();
+  const digitsOnly = rawPhone.replace(/[^\d+]/g, "");
+  const normalizedPhone =
+    digitsOnly.startsWith("+") ? digitsOnly :
+    digitsOnly.length === 10 ? `+1${digitsOnly}` :
+    digitsOnly.length === 11 && digitsOnly.startsWith("1") ? `+${digitsOnly}` :
+    digitsOnly ? `+${digitsOnly}` : "";
+
   // Create Guesty reservation in inquiry status (holds inventory; confirmed by webhook on Stripe success).
+  const reservationPayload = {
+    listingId,
+    checkInDateLocalized: checkInDate,
+    checkOutDateLocalized: checkOutDate,
+    guestsCount,
+    source: "direct",
+    status: "inquiry",
+    guest: {
+      firstName: guest.firstName.trim(),
+      lastName: guest.lastName.trim(),
+      email: guest.email.trim().toLowerCase(),
+      phone: normalizedPhone,
+    },
+  };
   let reservationId: string;
   try {
     const reservation = (await guestyOpenFetch("/v1/reservations", {
       method: "POST",
-      body: JSON.stringify({
-        listingId,
-        checkInDateLocalized: checkInDate,
-        checkOutDateLocalized: checkOutDate,
-        guestsCount,
-        source: "direct",
-        status: "inquiry",
-        guest: {
-          firstName: guest.firstName,
-          lastName: guest.lastName,
-          email: guest.email,
-          phone: guest.phone,
-        },
-      }),
+      body: JSON.stringify(reservationPayload),
     })) as { _id?: string };
     if (!reservation?._id) {
       throw new Error("Reservation created without _id");
     }
     reservationId = reservation._id;
   } catch (err) {
+    console.error("Reservation create failed. Payload:", JSON.stringify(reservationPayload));
     if (err instanceof GuestyApiError) {
+      console.error("Guesty error body:", JSON.stringify(err.body));
       return NextResponse.json(
         { error: `Guesty reservation failed: ${err.message}` },
         { status: err.status >= 500 ? 502 : 400 }
