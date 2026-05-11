@@ -4,34 +4,12 @@ import Link from "next/link";
 import { format, parseISO, differenceInCalendarDays } from "date-fns";
 import { getRoom } from "@/lib/rooms";
 import type { Quote } from "@/lib/types";
+import { fetchQuote, QuoteError } from "@/lib/booking/quote";
 import { CheckoutForm } from "@/components/booking/CheckoutForm";
 
 interface Props {
   params: { type: string };
   searchParams: { checkIn?: string; checkOut?: string; guests?: string };
-}
-
-async function fetchQuote(
-  listingId: string,
-  checkIn: string,
-  checkOut: string,
-  guests: number
-): Promise<Quote | { error: string }> {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || `http://localhost:${process.env.PORT || 3000}`;
-  const res = await fetch(`${baseUrl}/api/booking/quote`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      listingId,
-      checkInDate: checkIn,
-      checkOutDate: checkOut,
-      guestsCount: guests,
-    }),
-    cache: "no-store",
-  });
-  if (!res.ok) return { error: (await res.json()).error || `Quote failed: ${res.status}` };
-  return res.json();
 }
 
 export default async function BookPage({ params, searchParams }: Props) {
@@ -48,9 +26,17 @@ export default async function BookPage({ params, searchParams }: Props) {
     return <MissingParams roomSlug={room.slug} message={`This suite holds 1–${room.maxGuests} guests.`} />;
   }
 
-  const quote = await fetchQuote(room.listingId, checkIn, checkOut, guestsNum);
-  if ("error" in quote) {
-    return <QuoteError roomSlug={room.slug} message={quote.error} />;
+  let quote: Quote;
+  try {
+    quote = await fetchQuote({
+      listingId: room.listingId,
+      checkInDate: checkIn,
+      checkOutDate: checkOut,
+      guestsCount: guestsNum,
+    });
+  } catch (err) {
+    const message = err instanceof QuoteError ? err.message : (err instanceof Error ? err.message : "Quote failed");
+    return <QuoteErrorScreen roomSlug={room.slug} message={message} />;
   }
 
   const nights = differenceInCalendarDays(parseISO(checkOut), parseISO(checkIn));
@@ -148,7 +134,7 @@ function MissingParams({ message }: { roomSlug: string; message?: string }) {
   );
 }
 
-function QuoteError({ message }: { roomSlug: string; message: string }) {
+function QuoteErrorScreen({ message }: { roomSlug: string; message: string }) {
   return (
     <main className="bg-plymouth-cream min-h-screen pt-32 pb-20 section-padding">
       <div className="max-w-container mx-auto text-center max-w-2xl">
