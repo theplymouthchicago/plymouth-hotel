@@ -28,7 +28,16 @@ export function DateRangePicker({
   variant = "dark",
 }: Props) {
   const [open, setOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 640px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   useEffect(() => {
     function onDocClick(e: MouseEvent) {
@@ -63,7 +72,7 @@ export function DateRangePicker({
         aria-haspopup="dialog"
         aria-expanded={open}
       >
-        <div className={`text-[10px] uppercase tracking-[0.2em] mb-1 ${isDark ? "text-plymouth-gold" : "text-plymouth-gold"}`}>
+        <div className="text-[10px] uppercase tracking-[0.2em] mb-1 text-plymouth-gold">
           Dates
         </div>
         <div className={`font-body text-sm ${value.from ? "" : "opacity-60"}`}>{display}</div>
@@ -71,7 +80,7 @@ export function DateRangePicker({
 
       {open && (
         <div
-          className={`absolute z-50 mt-2 left-0 p-4 shadow-2xl ${
+          className={`plymouth-daypicker absolute z-50 mt-2 left-0 p-3 sm:p-4 shadow-2xl max-w-[calc(100vw-2rem)] overflow-auto ${
             isDark
               ? "bg-plymouth-charcoal border border-plymouth-gold/30 text-white"
               : "bg-white border border-gray-200 text-plymouth-black"
@@ -80,7 +89,7 @@ export function DateRangePicker({
         >
           <DayPicker
             mode="range"
-            numberOfMonths={2}
+            numberOfMonths={isMobile ? 1 : 2}
             selected={range}
             onSelect={(r) => {
               onChange({ from: r?.from, to: r?.to });
@@ -91,23 +100,6 @@ export function DateRangePicker({
               ...unavailableDates.map((d) => ({ from: d, to: d })),
             ]}
             min={minNights}
-            classNames={{
-              months: "flex gap-6",
-              month_caption: "flex justify-center items-center px-2 py-1 font-display text-base mb-2",
-              caption_label: "font-display",
-              nav: "absolute top-3 inset-x-0 flex justify-between px-2",
-              button_previous: "h-8 w-8 inline-flex items-center justify-center hover:text-plymouth-gold",
-              button_next: "h-8 w-8 inline-flex items-center justify-center hover:text-plymouth-gold",
-              weekday: "uppercase text-[10px] tracking-[0.2em] opacity-60 font-body w-9 h-9 inline-flex items-center justify-center",
-              day: "h-9 w-9 p-0 text-sm",
-              day_button: "h-9 w-9 inline-flex items-center justify-center hover:bg-plymouth-gold/20 transition-colors",
-              today: "underline underline-offset-4 decoration-plymouth-gold",
-              selected: "bg-plymouth-gold/40",
-              range_start: "[&_button]:bg-plymouth-gold [&_button]:!text-plymouth-black [&_button]:font-semibold",
-              range_end: "[&_button]:bg-plymouth-gold [&_button]:!text-plymouth-black [&_button]:font-semibold",
-              range_middle: "bg-plymouth-gold/20",
-              disabled: "opacity-30 line-through cursor-not-allowed",
-            }}
           />
           <div className="flex justify-between items-center mt-3 pt-3 border-t border-current/10">
             <button
@@ -129,6 +121,65 @@ export function DateRangePicker({
           </div>
         </div>
       )}
+
+      <style jsx global>{`
+        .plymouth-daypicker .rdp-root {
+          --rdp-accent-color: #c8a45e;
+          --rdp-accent-background-color: rgba(200, 164, 94, 0.2);
+          --rdp-day-height: 2.25rem;
+          --rdp-day-width: 2.25rem;
+          --rdp-day_button-height: 2.25rem;
+          --rdp-day_button-width: 2.25rem;
+          --rdp-day_button-border-radius: 0;
+          --rdp-selected-border: none;
+          --rdp-range_start-color: #0a0a0a;
+          --rdp-range_end-color: #0a0a0a;
+          --rdp-range_middle-color: inherit;
+          --rdp-today-color: #c8a45e;
+          --rdp-nav_button-height: 2rem;
+          --rdp-nav_button-width: 2rem;
+          --rdp-weekday-padding: 0.25rem;
+        }
+        .plymouth-daypicker .rdp-caption_label {
+          font-family: var(--font-display, Georgia, serif);
+          font-weight: 400;
+          letter-spacing: -0.01em;
+        }
+        .plymouth-daypicker .rdp-weekday {
+          font-size: 0.625rem;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          opacity: 0.6;
+          font-weight: 500;
+        }
+        .plymouth-daypicker .rdp-day_button {
+          font-size: 0.875rem;
+          transition: background 150ms;
+        }
+        .plymouth-daypicker .rdp-day_button:hover:not(:disabled) {
+          background: rgba(200, 164, 94, 0.15);
+        }
+        .plymouth-daypicker .rdp-range_start .rdp-day_button,
+        .plymouth-daypicker .rdp-range_end .rdp-day_button {
+          background: #c8a45e;
+          color: #0a0a0a;
+          font-weight: 600;
+        }
+        .plymouth-daypicker .rdp-range_middle .rdp-day_button {
+          background: rgba(200, 164, 94, 0.2);
+          color: inherit;
+        }
+        .plymouth-daypicker .rdp-today .rdp-day_button {
+          text-decoration: underline;
+          text-underline-offset: 4px;
+          text-decoration-color: #c8a45e;
+        }
+        .plymouth-daypicker .rdp-disabled .rdp-day_button {
+          opacity: 0.3;
+          text-decoration: line-through;
+          cursor: not-allowed;
+        }
+      `}</style>
     </div>
   );
 }
