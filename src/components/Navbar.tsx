@@ -46,7 +46,7 @@ export function Navbar() {
               priority
               className="h-12 w-auto md:h-14"
             />
-            <span className="hidden sm:block font-display text-lg md:text-xl text-plymouth-cream tracking-[0.18em] uppercase leading-none">
+            <span className="font-display text-base sm:text-lg md:text-xl text-plymouth-cream tracking-[0.18em] uppercase leading-none whitespace-nowrap">
               The Plymouth
             </span>
           </Link>
