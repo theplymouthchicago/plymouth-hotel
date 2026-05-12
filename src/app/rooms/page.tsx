@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { ROOMS } from "@/lib/rooms";
 import { RoomBookingControls } from "@/components/booking/RoomBookingControls";
 import { getListingImages } from "@/lib/listing-images";
+import { ListingImageView } from "@/components/booking/ListingImageView";
 
 export const metadata: Metadata = {
   title: "Rooms & Suites — 2, 3 & 4 Bedroom Suites | The Plymouth Chicago",
@@ -60,27 +60,13 @@ export default async function RoomsPage() {
             key={room.name}
             className={`grid grid-cols-1 lg:grid-cols-2 min-h-[70vh] ${index > 0 ? "border-t border-gray-200" : ""}`}
           >
-            {/* Image + thumbnail strip */}
+            {/* Image + clickable lightbox */}
             <div className={`relative min-h-[50vw] lg:min-h-full ${index % 2 === 1 ? "lg:order-2" : ""}`}>
-              <Image
-                src={room.image}
-                alt={room.alt}
-                fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                unoptimized
+              <ListingImageView
+                primary={{ url: room.image, alt: room.alt }}
+                gallery={room.gallery.filter((g) => g.url !== room.image)}
+                variant="rooms-hero"
               />
-              {room.gallery.length > 1 && (
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3 pt-12">
-                  <div className="flex gap-2 overflow-x-auto">
-                    {room.gallery.slice(1, 7).map((g, i) => (
-                      <div key={i} className="relative w-20 h-14 flex-shrink-0 border border-white/30">
-                        <Image src={g.url} alt={g.alt} fill className="object-cover" sizes="80px" unoptimized />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Content */}
