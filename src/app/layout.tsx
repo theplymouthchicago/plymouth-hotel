@@ -179,6 +179,7 @@ const hotelSchema = {
         { "@type": "TouristAttraction", name: "United Center" },
       ],
       sameAs: [
+        "https://www.instagram.com/plymouthchicago/",
         "https://www.airbnb.com/users/show/theplymouthchicago",
       ],
     },

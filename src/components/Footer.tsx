@@ -43,7 +43,7 @@ export function Footer() {
             </p>
             <div className="flex gap-4 mt-6">
               <a
-                href="https://www.instagram.com/thedreamrentals/"
+                href="https://www.instagram.com/plymouthchicago/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 flex items-center justify-center border border-plymouth-cream/20 text-plymouth-cream/60 hover:text-plymouth-brass hover:border-plymouth-brass transition-colors"
