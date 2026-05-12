@@ -6,6 +6,7 @@ export interface QuoteRequest {
   checkInDate: string;
   checkOutDate: string;
   guestsCount: number;
+  couponCode?: string;
 }
 
 export class QuoteError extends Error {
@@ -24,6 +25,7 @@ interface GuestyQuoteResponse {
   checkOutDateLocalized: string;
   guestsCount: number;
   unitTypeId: string;
+  coupons?: Array<{ code?: string; discountAmount?: number; amount?: number }>;
   rates?: {
     ratePlans?: Array<{
       days?: Array<{ date: string; price: number }>;
@@ -36,6 +38,7 @@ interface GuestyQuoteResponse {
           totalFees?: number;
           totalTaxes?: number;
           hostPayout?: number;
+          couponDiscount?: number;
         };
       };
     }>;
@@ -47,21 +50,27 @@ export async function fetchQuote(req: QuoteRequest): Promise<Quote> {
     throw new QuoteError("listingId, checkInDate, checkOutDate, guestsCount required", 400);
   }
 
+  const trimmedCoupon = req.couponCode?.trim();
+  const body: Record<string, unknown> = {
+    listingId: req.listingId,
+    checkInDateLocalized: req.checkInDate,
+    checkOutDateLocalized: req.checkOutDate,
+    guestsCount: req.guestsCount,
+    source: "direct",
+  };
+  if (trimmedCoupon) body.coupons = [trimmedCoupon];
+
   let data: GuestyQuoteResponse;
   try {
     data = (await guestyOpenFetch("/v1/quotes", {
       method: "POST",
-      body: JSON.stringify({
-        listingId: req.listingId,
-        checkInDateLocalized: req.checkInDate,
-        checkOutDateLocalized: req.checkOutDate,
-        guestsCount: req.guestsCount,
-        source: "direct",
-      }),
+      body: JSON.stringify(body),
     })) as GuestyQuoteResponse;
   } catch (err) {
     if (err instanceof GuestyApiError) {
-      throw new QuoteError(err.message, err.status >= 400 && err.status < 500 ? 400 : 502);
+      // Surface Guesty's coupon errors verbatim so users see "Invalid coupon code" etc.
+      const status = err.status >= 400 && err.status < 500 ? 400 : 502;
+      throw new QuoteError(err.message, status);
     }
     throw new QuoteError(err instanceof Error ? err.message : "Quote failed", 500);
   }
@@ -76,6 +85,15 @@ export async function fetchQuote(req: QuoteRequest): Promise<Quote> {
     date: d.date,
     price: d.price,
   }));
+
+  // Guesty surfaces coupon details in either rates.ratePlans[0].money.money.couponDiscount
+  // or the top-level coupons[] array — read both, prefer whichever has a value.
+  const appliedCoupon = data.coupons?.[0];
+  const appliedDiscount =
+    money.couponDiscount ??
+    appliedCoupon?.discountAmount ??
+    appliedCoupon?.amount;
+  const couponCodeApplied = appliedCoupon?.code || (trimmedCoupon && appliedDiscount ? trimmedCoupon : undefined);
 
   return {
     quoteId: data._id,
@@ -92,5 +110,7 @@ export async function fetchQuote(req: QuoteRequest): Promise<Quote> {
     checkOutDate: data.checkOutDateLocalized,
     guestsCount: data.guestsCount,
     listingId: data.unitTypeId,
+    couponCode: couponCodeApplied,
+    discountAmount: appliedDiscount && appliedDiscount > 0 ? appliedDiscount : undefined,
   };
 }

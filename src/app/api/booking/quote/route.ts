@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { fetchQuote, QuoteError } from "@/lib/booking/quote";
 
 export async function POST(req: NextRequest) {
-  let body: { listingId: string; checkInDate: string; checkOutDate: string; guestsCount: number };
+  let body: { listingId: string; checkInDate: string; checkOutDate: string; guestsCount: number; couponCode?: string };
   try {
     body = await req.json();
   } catch {

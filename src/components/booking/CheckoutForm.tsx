@@ -16,9 +16,10 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 interface Props {
   quote: Quote;
   roomName: string;
+  couponCode?: string;
 }
 
-export function CheckoutForm({ quote, roomName }: Props) {
+export function CheckoutForm({ quote, roomName, couponCode }: Props) {
   const [step, setStep] = useState<"guest" | "pay">("guest");
   const [guest, setGuest] = useState({ firstName: "", lastName: "", email: "", phone: "" });
   const [creating, setCreating] = useState(false);
@@ -51,6 +52,7 @@ export function CheckoutForm({ quote, roomName }: Props) {
           guestsCount: quote.guestsCount,
           guest,
           expectedTotal: quote.total,
+          ...(couponCode ? { couponCode } : {}),
         }),
       });
       const data = await res.json();

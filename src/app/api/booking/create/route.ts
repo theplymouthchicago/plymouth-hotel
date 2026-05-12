@@ -16,6 +16,7 @@ interface CreateBody {
     phone: string;
   };
   expectedTotal: number;
+  couponCode?: string;
 }
 
 export async function POST(req: NextRequest) {
@@ -26,7 +27,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { quoteId, listingId, checkInDate, checkOutDate, guestsCount, guest, expectedTotal } = body;
+  const { quoteId, listingId, checkInDate, checkOutDate, guestsCount, guest, expectedTotal, couponCode } = body;
   if (
     !quoteId ||
     !listingId ||
@@ -61,18 +62,21 @@ export async function POST(req: NextRequest) {
   }
 
   // Re-quote server-side so we never trust client-supplied prices.
+  // Coupon code (if any) goes through so the discount is reflected in the charge.
   let serverTotal: number;
   let currency: string;
   try {
+    const reQuoteBody: Record<string, unknown> = {
+      listingId,
+      checkInDateLocalized: checkInDate,
+      checkOutDateLocalized: checkOutDate,
+      guestsCount,
+      source: "direct",
+    };
+    if (couponCode?.trim()) reQuoteBody.coupons = [couponCode.trim()];
     const reQuote = (await guestyOpenFetch("/v1/quotes", {
       method: "POST",
-      body: JSON.stringify({
-        listingId,
-        checkInDateLocalized: checkInDate,
-        checkOutDateLocalized: checkOutDate,
-        guestsCount,
-        source: "direct",
-      }),
+      body: JSON.stringify(reQuoteBody),
     })) as { rates?: { ratePlans?: Array<{ money?: { money?: { hostPayout?: number; currency?: string } } }> } };
     const money = reQuote.rates?.ratePlans?.[0]?.money?.money;
     serverTotal = money?.hostPayout ?? 0;
@@ -103,7 +107,7 @@ export async function POST(req: NextRequest) {
     digitsOnly ? `+${digitsOnly}` : "";
 
   // Create Guesty reservation in inquiry status (holds inventory; confirmed by webhook on Stripe success).
-  const reservationPayload = {
+  const reservationPayload: Record<string, unknown> = {
     listingId,
     checkInDateLocalized: checkInDate,
     checkOutDateLocalized: checkOutDate,
@@ -117,6 +121,7 @@ export async function POST(req: NextRequest) {
       phone: normalizedPhone,
     },
   };
+  if (couponCode?.trim()) reservationPayload.coupons = [couponCode.trim()];
   let reservationId: string;
   try {
     const reservation = (await guestyOpenFetch("/v1/reservations", {
@@ -157,6 +162,7 @@ export async function POST(req: NextRequest) {
         guestsCount: String(guestsCount),
         guestName: `${guest.firstName} ${guest.lastName}`,
         guestEmail: guest.email,
+        ...(couponCode?.trim() ? { couponCode: couponCode.trim() } : {}),
       },
     });
 

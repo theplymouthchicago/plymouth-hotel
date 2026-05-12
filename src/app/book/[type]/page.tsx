@@ -6,8 +6,7 @@ import type { Quote } from "@/lib/types";
 import { fetchQuote, QuoteError } from "@/lib/booking/quote";
 import { checkAvailability } from "@/lib/booking/availability";
 import { getListingImages } from "@/lib/listing-images";
-import { CheckoutForm } from "@/components/booking/CheckoutForm";
-import { ListingImageView } from "@/components/booking/ListingImageView";
+import { BookingPanel } from "@/components/booking/BookingPanel";
 
 interface Props {
   params: { type: string };
@@ -64,86 +63,32 @@ export default async function BookPage({ params, searchParams }: Props) {
 
   return (
     <main className="bg-plymouth-cream min-h-screen pt-32 pb-20 section-padding">
-      <div className="max-w-container mx-auto grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-10">
-        <div>
-          <Link
-            href="/rooms"
-            className="text-xs uppercase tracking-[0.2em] text-plymouth-gray hover:text-plymouth-gold transition-colors"
-          >
-            ← Back to rooms
-          </Link>
-          <p className="text-plymouth-gold font-body text-xs uppercase tracking-[0.3em] mt-6 mb-3">
-            Confirm your booking
-          </p>
-          <h1 className="font-display text-display-lg text-plymouth-black mb-2">{room.name}</h1>
-          <p className="font-display text-xl italic text-plymouth-charcoal mb-6">{room.tagline}</p>
+      <div className="max-w-container mx-auto">
+        <Link
+          href="/rooms"
+          className="text-xs uppercase tracking-[0.2em] text-plymouth-charcoal/60 hover:text-plymouth-brass transition-colors"
+        >
+          ← Back to rooms
+        </Link>
+        <p className="text-plymouth-brass font-body text-xs uppercase tracking-[0.3em] mt-6 mb-3">
+          Confirm your booking
+        </p>
+        <h1 className="font-display text-display-lg text-plymouth-black mb-2">{room.name}</h1>
+        <p className="font-display text-xl italic text-plymouth-charcoal mb-6">{room.tagline}</p>
 
-          <AvailabilityBadge
-            checkIn={checkIn}
-            checkOut={checkOut}
-            nights={nights}
-          />
+        <AvailabilityBadge checkIn={checkIn} checkOut={checkOut} nights={nights} />
 
-          <div className="bg-white p-8 shadow-sm">
-            <h2 className="font-display text-display-sm text-plymouth-black mb-6">Your details</h2>
-            <CheckoutForm quote={quote} roomName={room.name} />
-          </div>
-        </div>
-
-        <aside className="lg:sticky lg:top-32 self-start">
-          <ListingImageView
-            primary={{ url: images.primary, alt: images.primaryAlt }}
-            gallery={images.gallery.filter((g) => g.url !== images.primary)}
-            variant="book-sidebar"
-          />
-          <div className="bg-white p-6 shadow-sm">
-            <div className="flex justify-between text-xs uppercase tracking-[0.2em] text-plymouth-gray mb-4">
-              <span>{format(parseISO(checkIn), "MMM d")} — {format(parseISO(checkOut), "MMM d")}</span>
-              <span>{nights} {nights === 1 ? "night" : "nights"}</span>
-            </div>
-            <div className="text-xs uppercase tracking-[0.2em] text-plymouth-gray mb-6">
-              {guestsNum} {guestsNum === 1 ? "guest" : "guests"}
-            </div>
-
-            <PriceBreakdown quote={quote} />
-          </div>
-          <p className="text-[11px] text-plymouth-gray text-center mt-4 leading-relaxed">
-            You won&apos;t be charged until you confirm your booking on the next step.
-            <br />
-            Free cancellation up to 48 hours before check-in.
-          </p>
-        </aside>
+        <BookingPanel
+          initialQuote={quote}
+          roomName={room.name}
+          images={images}
+          checkIn={checkIn}
+          checkOut={checkOut}
+          guestsCount={guestsNum}
+          nights={nights}
+        />
       </div>
     </main>
-  );
-}
-
-function PriceBreakdown({ quote }: { quote: Quote }) {
-  const fmt = (n: number) =>
-    new Intl.NumberFormat("en-US", { style: "currency", currency: quote.currency }).format(n);
-  return (
-    <div className="space-y-2 text-sm">
-      <Row label="Accommodation" value={fmt(quote.fareAccommodation)} />
-      {quote.fareCleaning > 0 && <Row label="Cleaning fee" value={fmt(quote.fareCleaning)} />}
-      {quote.totalFees > 0 && quote.totalFees !== quote.fareCleaning && (
-        <Row label="Other fees" value={fmt(quote.totalFees - quote.fareCleaning)} />
-      )}
-      <Row label="Taxes" value={fmt(quote.totalTaxes)} />
-      <div className="h-px bg-gray-200 my-3" />
-      <div className="flex justify-between font-display text-lg text-plymouth-black">
-        <span>Total</span>
-        <span>{fmt(quote.total)}</span>
-      </div>
-    </div>
-  );
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between text-plymouth-charcoal">
-      <span>{label}</span>
-      <span>{value}</span>
-    </div>
   );
 }
 

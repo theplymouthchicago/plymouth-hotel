@@ -13,4 +13,6 @@ export interface Quote {
   checkOutDate: string;
   guestsCount: number;
   listingId: string;
+  couponCode?: string;
+  discountAmount?: number;
 }
