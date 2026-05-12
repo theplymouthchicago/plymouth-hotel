@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 
+const GOOGLE_REVIEW_URL = "https://g.page/r/CeER0GaWiYMCEAE/review";
+
 const footerLinks = {
   Hotel: [
     { label: "Rooms & Suites", href: "/rooms" },
@@ -8,16 +10,11 @@ const footerLinks = {
     { label: "Location", href: "/location" },
     { label: "FAQ", href: "/faq" },
   ],
-  Company: [
-    { label: "About Plymouth", href: "/experience" },
-    { label: "Careers", href: "#" },
-    { label: "Press", href: "#" },
-    { label: "Contact", href: "#" },
-  ],
-  Legal: [
-    { label: "Privacy Policy", href: "#" },
-    { label: "Terms of Service", href: "#" },
-    { label: "Accessibility", href: "#" },
+  Connect: [
+    { label: "Email Us", href: "mailto:info@theplymouthchicago.com" },
+    { label: "Call (708) 866-0029", href: "tel:+17088660029" },
+    { label: "Leave a Google Review", href: GOOGLE_REVIEW_URL, external: true },
+    { label: "417 S Dearborn, Chicago", href: "https://maps.google.com/?q=417+S+Dearborn+St+Chicago+IL+60605", external: true },
   ],
 };
 
@@ -45,10 +42,11 @@ export function Footer() {
               extended stays, and guests who know the difference.
             </p>
             <div className="flex gap-4 mt-6">
-              {/* Social Icons */}
               <a
-                href="#"
-                className="w-10 h-10 flex items-center justify-center border border-plymouth-dark text-plymouth-cream/60 hover:text-plymouth-brass hover:border-plymouth-brass transition-colors"
+                href="https://www.instagram.com/thedreamrentals/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 flex items-center justify-center border border-plymouth-cream/20 text-plymouth-cream/60 hover:text-plymouth-brass hover:border-plymouth-brass transition-colors"
                 aria-label="Instagram"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -56,12 +54,25 @@ export function Footer() {
                 </svg>
               </a>
               <a
-                href="#"
-                className="w-10 h-10 flex items-center justify-center border border-plymouth-dark text-plymouth-cream/60 hover:text-plymouth-brass hover:border-plymouth-brass transition-colors"
-                aria-label="X (Twitter)"
+                href="https://maps.google.com/?q=417+S+Dearborn+St+Chicago+IL+60605"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 flex items-center justify-center border border-plymouth-cream/20 text-plymouth-cream/60 hover:text-plymouth-brass hover:border-plymouth-brass transition-colors"
+                aria-label="View on Google Maps"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z" />
+                </svg>
+              </a>
+              <a
+                href="https://g.page/r/CeER0GaWiYMCEAE/review"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 flex items-center justify-center border border-plymouth-cream/20 text-plymouth-cream/60 hover:text-plymouth-brass hover:border-plymouth-brass transition-colors"
+                aria-label="Leave a Google review"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                 </svg>
               </a>
             </div>
@@ -74,16 +85,34 @@ export function Footer() {
                 {heading}
               </h3>
               <ul className="space-y-3">
-                {links.map((link) => (
-                  <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="text-plymouth-cream/60 text-sm hover:text-plymouth-brass transition-colors"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
+                {links.map((link) => {
+                  const isExternal = "external" in link && link.external;
+                  const isMailOrTel = link.href.startsWith("mailto:") || link.href.startsWith("tel:");
+                  if (isExternal || isMailOrTel) {
+                    return (
+                      <li key={link.label}>
+                        <a
+                          href={link.href}
+                          target={isExternal ? "_blank" : undefined}
+                          rel={isExternal ? "noopener noreferrer" : undefined}
+                          className="text-plymouth-cream/60 text-sm hover:text-plymouth-brass transition-colors"
+                        >
+                          {link.label}
+                        </a>
+                      </li>
+                    );
+                  }
+                  return (
+                    <li key={link.label}>
+                      <Link
+                        href={link.href}
+                        className="text-plymouth-cream/60 text-sm hover:text-plymouth-brass transition-colors"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}

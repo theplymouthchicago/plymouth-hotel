@@ -122,9 +122,12 @@ export default function FAQPage() {
             phone trees. Real people who actually know the answers.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="#" className="btn-primary">
-              Contact Us
-            </Link>
+            <a href="mailto:info@theplymouthchicago.com" className="btn-primary">
+              Email Us
+            </a>
+            <a href="tel:+17088660029" className="btn-primary">
+              Call (708) 866-0029
+            </a>
             <Link href="/rooms" className="btn-outline">
               Book Your Stay
             </Link>
