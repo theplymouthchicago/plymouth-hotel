@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { guestyOpenFetch, GuestyApiError } from "../../guesty/open-client";
+import { checkAvailability } from "@/lib/booking/availability";
 import { stripe } from "@/lib/stripe";
 
 interface CreateBody {
@@ -39,6 +40,24 @@ export async function POST(req: NextRequest) {
     !expectedTotal
   ) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+  }
+
+  // Re-check availability with Guesty — guards against dates being taken between
+  // page-load and pay (someone else booked, host blocked the night, etc).
+  try {
+    const avail = await checkAvailability(listingId, checkInDate, checkOutDate);
+    if (!avail.available) {
+      return NextResponse.json(
+        {
+          error: "Those dates are no longer available — please pick new dates.",
+          blockedDates: avail.blockedDates,
+          code: "UNAVAILABLE",
+        },
+        { status: 409 },
+      );
+    }
+  } catch {
+    // Calendar fetch failures shouldn't block payment — re-quote below will catch hard errors.
   }
 
   // Re-quote server-side so we never trust client-supplied prices.
