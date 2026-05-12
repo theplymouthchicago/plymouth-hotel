@@ -1,16 +1,20 @@
 import type { Metadata } from "next";
-import { DM_Serif_Display, Inter } from "next/font/google";
+import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 
-const displayFont = DM_Serif_Display({
+// Playfair Display is a transitional serif designed for editorial use with a
+// large x-height — it stays legible at small sizes far better than DM Serif Display.
+const displayFont = Playfair_Display({
   subsets: ["latin"],
-  weight: "400",
+  weight: ["500", "600", "700"],
   variable: "--font-display",
   display: "swap",
 });
 
+// Inter is purpose-built for screen legibility; we use weight 450 for body to
+// improve contrast against off-white backgrounds.
 const bodyFont = Inter({
   subsets: ["latin"],
   variable: "--font-body",
@@ -137,7 +141,7 @@ const hotelSchema = {
       ],
       hasMap: "https://maps.google.com/?q=417+S+Dearborn+St+Chicago+IL+60605",
       image: `${BASE_URL}/images/living-dark.jpg`,
-      logo: `${BASE_URL}/images/plymouth-logo.png`,
+      logo: `${BASE_URL}/brand/plymouth-logo.png`,
       containsPlace: [
         {
           "@type": "Accommodation",

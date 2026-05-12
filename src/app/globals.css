@@ -18,11 +18,27 @@
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Bump base from the browser default 16px → 17px so all rem-based sizing
+       scales up; improves legibility on phones without changing layout. */
+    font-size: 17px;
   }
 
   body {
     color: var(--plymouth-charcoal);
     background: var(--plymouth-cream);
+    line-height: 1.65;
+    font-weight: 450;
+    letter-spacing: 0.005em;
+  }
+
+  /* Larger, more readable paragraphs across the site. */
+  p {
+    line-height: 1.7;
+  }
+
+  /* Headings keep tighter line-height for editorial feel. */
+  h1, h2, h3, h4, h5, h6 {
+    line-height: 1.2;
   }
 
   ::selection {
