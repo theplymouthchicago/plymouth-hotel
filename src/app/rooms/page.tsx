@@ -125,7 +125,7 @@ export default async function RoomsPage() {
           </p>
           <a
             href="/#booking"
-            className="inline-flex items-center gap-3 bg-plymouth-gold text-black px-10 py-4 text-sm uppercase tracking-[0.2em] font-semibold hover:bg-white transition-colors"
+            className="inline-flex items-center gap-3 bg-plymouth-brass text-plymouth-forest-deep px-10 py-4 text-sm uppercase tracking-[0.2em] font-semibold hover:bg-plymouth-cream transition-colors"
           >
             Book Direct Now
           </a>

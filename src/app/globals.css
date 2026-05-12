@@ -4,9 +4,14 @@
 
 @layer base {
   :root {
-    --plymouth-black: #0A0A0A;
-    --plymouth-charcoal: #1A1A1A;
-    --plymouth-gold: #C8A45E;
+    --plymouth-black: #1A2E27;
+    --plymouth-charcoal: #2A3530;
+    --plymouth-forest: #243F34;
+    --plymouth-forest-deep: #1A2E27;
+    --plymouth-gold: #B89968;
+    --plymouth-brass: #B89968;
+    --plymouth-cream: #F4EFD8;
+    --plymouth-cream-warm: #EAE6CE;
   }
 
   html {
@@ -16,12 +21,12 @@
   }
 
   body {
-    color: var(--plymouth-black);
-    background: #FAF8F5;
+    color: var(--plymouth-charcoal);
+    background: var(--plymouth-cream);
   }
 
   ::selection {
-    background: var(--plymouth-gold);
+    background: var(--plymouth-brass);
     color: #fff;
   }
 }
@@ -58,8 +63,8 @@
 .lightpick {
   z-index: 100 !important;
   border-radius: 12px !important;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4) !important;
-  border: 1px solid rgba(200, 164, 94, 0.15) !important;
+  box-shadow: 0 20px 60px rgba(26, 46, 39, 0.45) !important;
+  border: 1px solid rgba(184, 153, 104, 0.2) !important;
   overflow: hidden !important;
 }
 

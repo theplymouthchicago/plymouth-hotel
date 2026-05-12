@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 const navLinks = [
   { label: "Rooms", href: "/rooms" },
@@ -30,17 +31,24 @@ export function Navbar() {
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
-            ? "bg-plymouth-black/95 backdrop-blur-md shadow-xl border-b border-white/5"
-            : "bg-gradient-to-b from-black/70 to-transparent"
+            ? "bg-plymouth-forest/95 backdrop-blur-md shadow-xl border-b border-plymouth-cream/10"
+            : "bg-gradient-to-b from-plymouth-forest-deep/80 to-transparent"
         }`}
       >
         <nav className="section-padding max-w-container-lg mx-auto flex items-center justify-between h-20">
           {/* Logo */}
-          <Link href="/" className="relative z-50 group" onClick={() => setMobileOpen(false)}>
-            <span className="font-display text-xl text-white tracking-[0.15em] uppercase">
+          <Link href="/" className="relative z-50 flex items-center gap-3 group" onClick={() => setMobileOpen(false)}>
+            <Image
+              src="/brand/plymouth-mark.png"
+              alt="The Plymouth Chicago"
+              width={140}
+              height={140}
+              priority
+              className="h-12 w-auto md:h-14"
+            />
+            <span className="hidden sm:block font-display text-lg md:text-xl text-plymouth-cream tracking-[0.18em] uppercase leading-none">
               The Plymouth
             </span>
-            <span className="block h-px w-0 bg-plymouth-gold group-hover:w-full transition-all duration-300 mt-0.5" />
           </Link>
 
           {/* Desktop Nav */}
@@ -49,7 +57,7 @@ export function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-white/70 text-xs font-body uppercase tracking-[0.2em] hover:text-white transition-colors duration-200"
+                className="text-plymouth-cream/70 text-xs font-body uppercase tracking-[0.2em] hover:text-plymouth-cream transition-colors duration-200"
               >
                 {link.label}
               </Link>
@@ -62,8 +70,8 @@ export function Navbar() {
               href="/#booking"
               className={`px-6 py-2.5 text-xs uppercase tracking-[0.2em] font-medium transition-all duration-300 ${
                 scrolled
-                  ? "bg-plymouth-gold text-black hover:bg-white"
-                  : "bg-white/10 backdrop-blur-sm border border-white/30 text-white hover:bg-plymouth-gold hover:border-plymouth-gold hover:text-black"
+                  ? "bg-plymouth-brass text-plymouth-forest-deep hover:bg-plymouth-cream"
+                  : "bg-plymouth-cream/10 backdrop-blur-sm border border-plymouth-cream/30 text-plymouth-cream hover:bg-plymouth-brass hover:border-plymouth-brass hover:text-plymouth-forest-deep"
               }`}
             >
               Book Now
@@ -76,21 +84,28 @@ export function Navbar() {
             className="lg:hidden relative z-50 w-10 h-10 flex flex-col items-center justify-center gap-[5px]"
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
           >
-            <span className={`block w-5 h-px bg-white transition-all duration-300 origin-center ${mobileOpen ? "rotate-45 translate-y-[3px]" : ""}`} />
-            <span className={`block w-5 h-px bg-white transition-all duration-300 ${mobileOpen ? "opacity-0 scale-x-0" : ""}`} />
-            <span className={`block w-5 h-px bg-white transition-all duration-300 origin-center ${mobileOpen ? "-rotate-45 -translate-y-[9px]" : ""}`} />
+            <span className={`block w-5 h-px bg-plymouth-cream transition-all duration-300 origin-center ${mobileOpen ? "rotate-45 translate-y-[3px]" : ""}`} />
+            <span className={`block w-5 h-px bg-plymouth-cream transition-all duration-300 ${mobileOpen ? "opacity-0 scale-x-0" : ""}`} />
+            <span className={`block w-5 h-px bg-plymouth-cream transition-all duration-300 origin-center ${mobileOpen ? "-rotate-45 -translate-y-[9px]" : ""}`} />
           </button>
         </nav>
       </header>
 
       {/* Mobile Menu */}
-      <div className={`fixed inset-0 bg-plymouth-black z-40 flex flex-col items-center justify-center gap-10 transition-all duration-500 lg:hidden ${mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
+      <div className={`fixed inset-0 bg-plymouth-forest-deep z-40 flex flex-col items-center justify-center gap-10 transition-all duration-500 lg:hidden ${mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
+        <Image
+          src="/brand/plymouth-mark.png"
+          alt="The Plymouth Chicago"
+          width={180}
+          height={180}
+          className="h-24 w-auto mb-2 opacity-90"
+        />
         {navLinks.map((link, i) => (
           <Link
             key={link.href}
             href={link.href}
             onClick={() => setMobileOpen(false)}
-            className="text-white font-display text-4xl tracking-wider hover:text-plymouth-gold transition-colors"
+            className="text-plymouth-cream font-display text-4xl tracking-wider hover:text-plymouth-brass transition-colors"
             style={{ transitionDelay: `${i * 60}ms` }}
           >
             {link.label}
@@ -99,7 +114,7 @@ export function Navbar() {
         <a
           href="/#booking"
           onClick={() => setMobileOpen(false)}
-          className="mt-4 px-10 py-4 bg-plymouth-gold text-black text-sm uppercase tracking-[0.2em] font-medium hover:bg-white transition-colors"
+          className="mt-4 px-10 py-4 bg-plymouth-brass text-plymouth-forest-deep text-sm uppercase tracking-[0.2em] font-medium hover:bg-plymouth-cream transition-colors"
         >
           Book Now
         </a>
@@ -109,7 +124,7 @@ export function Navbar() {
       <div className={`fixed bottom-6 right-6 z-40 lg:hidden transition-all duration-500 ${scrolled && !mobileOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"}`}>
         <a
           href="/#booking"
-          className="flex items-center gap-2 bg-plymouth-gold text-black px-6 py-3 text-xs uppercase tracking-[0.2em] font-semibold shadow-2xl hover:bg-white transition-colors"
+          className="flex items-center gap-2 bg-plymouth-brass text-plymouth-forest-deep px-6 py-3 text-xs uppercase tracking-[0.2em] font-semibold shadow-2xl hover:bg-plymouth-cream transition-colors"
         >
           Book Now
         </a>

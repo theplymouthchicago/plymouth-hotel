@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const footerLinks = {
   Hotel: [
@@ -22,17 +23,24 @@ const footerLinks = {
 
 export function Footer() {
   return (
-    <footer className="bg-plymouth-black section-padding pt-section pb-12">
+    <footer className="bg-plymouth-forest-deep section-padding pt-section pb-12">
       <div className="max-w-container-lg mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           {/* Brand */}
           <div>
-            <Link href="/">
-              <span className="font-display text-2xl text-plymouth-white tracking-tight">
+            <Link href="/" className="inline-flex items-center gap-3">
+              <Image
+                src="/brand/plymouth-mark.png"
+                alt="The Plymouth Chicago"
+                width={120}
+                height={120}
+                className="h-14 w-auto"
+              />
+              <span className="font-display text-2xl text-plymouth-cream tracking-[0.12em] uppercase leading-tight">
                 The Plymouth
               </span>
             </Link>
-            <p className="text-plymouth-gray text-sm leading-relaxed mt-4 max-w-xs">
+            <p className="text-plymouth-cream/60 text-sm leading-relaxed mt-5 max-w-xs">
               Design-forward suites in the heart of Chicago. Built for groups,
               extended stays, and guests who know the difference.
             </p>
@@ -40,7 +48,7 @@ export function Footer() {
               {/* Social Icons */}
               <a
                 href="#"
-                className="w-10 h-10 flex items-center justify-center border border-plymouth-dark text-plymouth-gray hover:text-plymouth-gold hover:border-plymouth-gold transition-colors"
+                className="w-10 h-10 flex items-center justify-center border border-plymouth-dark text-plymouth-cream/60 hover:text-plymouth-brass hover:border-plymouth-brass transition-colors"
                 aria-label="Instagram"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -49,7 +57,7 @@ export function Footer() {
               </a>
               <a
                 href="#"
-                className="w-10 h-10 flex items-center justify-center border border-plymouth-dark text-plymouth-gray hover:text-plymouth-gold hover:border-plymouth-gold transition-colors"
+                className="w-10 h-10 flex items-center justify-center border border-plymouth-dark text-plymouth-cream/60 hover:text-plymouth-brass hover:border-plymouth-brass transition-colors"
                 aria-label="X (Twitter)"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -62,7 +70,7 @@ export function Footer() {
           {/* Link columns */}
           {Object.entries(footerLinks).map(([heading, links]) => (
             <div key={heading}>
-              <h3 className="text-plymouth-white font-body text-sm uppercase tracking-wider mb-6">
+              <h3 className="text-plymouth-cream font-body text-sm uppercase tracking-wider mb-6">
                 {heading}
               </h3>
               <ul className="space-y-3">
@@ -70,7 +78,7 @@ export function Footer() {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-plymouth-gray text-sm hover:text-plymouth-gold transition-colors"
+                      className="text-plymouth-cream/60 text-sm hover:text-plymouth-brass transition-colors"
                     >
                       {link.label}
                     </Link>
@@ -83,10 +91,10 @@ export function Footer() {
 
         {/* Bottom */}
         <div className="pt-8 border-t border-plymouth-dark flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-plymouth-gray text-xs">
+          <p className="text-plymouth-cream/60 text-xs">
             &copy; {new Date().getFullYear()} The Plymouth Hotel. All rights reserved.
           </p>
-          <p className="text-plymouth-gray text-xs">
+          <p className="text-plymouth-cream/60 text-xs">
             Chicago, Illinois
           </p>
         </div>
