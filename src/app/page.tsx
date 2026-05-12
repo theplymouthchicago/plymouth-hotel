@@ -9,7 +9,7 @@ import { Location } from "@/components/Location";
 import { FAQ } from "@/components/FAQ";
 import { CTABanner } from "@/components/CTABanner";
 import { ReviewCTA } from "@/components/ReviewCTA";
-import { BookingWidget } from "@/components/BookingWidget";
+import { HomepageSearch } from "@/components/HomepageSearch";
 
 
 const faqSchema = {
@@ -38,7 +38,7 @@ export default function Home() {
       <Testimonials />
       <Location />
       <FAQ />
-      <BookingWidget />
+      <HomepageSearch />
       <CTABanner />
       <ReviewCTA />
     </>

@@ -124,8 +124,8 @@ export function DateRangePicker({
 
       <style jsx global>{`
         .plymouth-daypicker .rdp-root {
-          --rdp-accent-color: #c8a45e;
-          --rdp-accent-background-color: rgba(200, 164, 94, 0.2);
+          --rdp-accent-color: #B89968;
+          --rdp-accent-background-color: rgba(184, 153, 104, 0.22);
           --rdp-day-height: 2.25rem;
           --rdp-day-width: 2.25rem;
           --rdp-day_button-height: 2.25rem;
@@ -135,7 +135,7 @@ export function DateRangePicker({
           --rdp-range_start-color: #0a0a0a;
           --rdp-range_end-color: #0a0a0a;
           --rdp-range_middle-color: inherit;
-          --rdp-today-color: #c8a45e;
+          --rdp-today-color: #B89968;
           --rdp-nav_button-height: 2rem;
           --rdp-nav_button-width: 2rem;
           --rdp-weekday-padding: 0.25rem;
@@ -161,18 +161,18 @@ export function DateRangePicker({
         }
         .plymouth-daypicker .rdp-range_start .rdp-day_button,
         .plymouth-daypicker .rdp-range_end .rdp-day_button {
-          background: #c8a45e;
+          background: #B89968;
           color: #0a0a0a;
           font-weight: 600;
         }
         .plymouth-daypicker .rdp-range_middle .rdp-day_button {
-          background: rgba(200, 164, 94, 0.2);
+          background: rgba(184, 153, 104, 0.22);
           color: inherit;
         }
         .plymouth-daypicker .rdp-today .rdp-day_button {
           text-decoration: underline;
           text-underline-offset: 4px;
-          text-decoration-color: #c8a45e;
+          text-decoration-color: #B89968;
         }
         .plymouth-daypicker .rdp-disabled .rdp-day_button {
           opacity: 0.3;
