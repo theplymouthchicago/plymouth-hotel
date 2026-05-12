@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { ROOMS } from "@/lib/rooms";
 import { RoomBookingControls } from "@/components/booking/RoomBookingControls";
+import { getListingImages } from "@/lib/listing-images";
 
 export const metadata: Metadata = {
   title: "Rooms & Suites — 2, 3 & 4 Bedroom Suites | The Plymouth Chicago",
@@ -9,25 +10,35 @@ export const metadata: Metadata = {
     "The Plymouth Chicago offers 2, 3, and 4 bedroom suites in the Loop. Full kitchens, rooftop access, instant booking. 417 S Dearborn St.",
 };
 
-const rooms = ROOMS.map((r) => ({
-  slug: r.slug,
-  name: r.name,
-  tagline: r.tagline,
-  sqft: `Up to ${r.maxGuests} guests`,
-  price: `${r.bedrooms} bedroom${r.bedrooms > 1 ? "s" : ""} · ${r.bathrooms} bath${r.bathrooms > 1 ? "s" : ""}`,
-  description: r.description,
-  features: r.features,
-  idealFor: r.idealFor,
-  image: r.image,
-  alt: r.alt,
-  maxGuests: r.maxGuests,
-}));
+// Re-fetch listing images at most every 5 minutes so updates to Guesty
+// photos surface on the public site without a redeploy.
+export const revalidate = 300;
 
-export default function RoomsPage() {
+export default async function RoomsPage() {
+  const rooms = await Promise.all(
+    ROOMS.map(async (r) => {
+      const images = await getListingImages(r.listingId);
+      return {
+        slug: r.slug,
+        name: r.name,
+        tagline: r.tagline,
+        sqft: `Up to ${r.maxGuests} guests`,
+        price: `${r.bedrooms} bedroom${r.bedrooms > 1 ? "s" : ""} · ${r.bathrooms} bath${r.bathrooms > 1 ? "s" : ""}`,
+        description: r.description,
+        features: r.features,
+        idealFor: r.idealFor,
+        image: images.primary,
+        alt: images.primaryAlt || r.alt,
+        gallery: images.gallery.slice(0, 6),
+        maxGuests: r.maxGuests,
+      };
+    })
+  );
+
   return (
     <>
       {/* Hero */}
-      <section className="bg-plymouth-black pt-32 pb-20 section-padding">
+      <section className="bg-plymouth-black pt-32 pb-20 section-padding" data-section="rooms-hero">
         <div className="max-w-container mx-auto text-center">
           <p className="text-plymouth-gold font-body text-sm uppercase tracking-[0.3em] mb-4">
             Our Suites
@@ -49,7 +60,7 @@ export default function RoomsPage() {
             key={room.name}
             className={`grid grid-cols-1 lg:grid-cols-2 min-h-[70vh] ${index > 0 ? "border-t border-gray-200" : ""}`}
           >
-            {/* Image */}
+            {/* Image + thumbnail strip */}
             <div className={`relative min-h-[50vw] lg:min-h-full ${index % 2 === 1 ? "lg:order-2" : ""}`}>
               <Image
                 src={room.image}
@@ -57,7 +68,19 @@ export default function RoomsPage() {
                 fill
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 50vw"
+                unoptimized
               />
+              {room.gallery.length > 1 && (
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3 pt-12">
+                  <div className="flex gap-2 overflow-x-auto">
+                    {room.gallery.slice(1, 7).map((g, i) => (
+                      <div key={i} className="relative w-20 h-14 flex-shrink-0 border border-white/30">
+                        <Image src={g.url} alt={g.alt} fill className="object-cover" sizes="80px" unoptimized />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Content */}

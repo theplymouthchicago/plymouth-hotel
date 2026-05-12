@@ -5,12 +5,15 @@ import { format, parseISO, differenceInCalendarDays } from "date-fns";
 import { getRoom } from "@/lib/rooms";
 import type { Quote } from "@/lib/types";
 import { fetchQuote, QuoteError } from "@/lib/booking/quote";
+import { getListingImages } from "@/lib/listing-images";
 import { CheckoutForm } from "@/components/booking/CheckoutForm";
 
 interface Props {
   params: { type: string };
   searchParams: { checkIn?: string; checkOut?: string; guests?: string };
 }
+
+export const revalidate = 300;
 
 export default async function BookPage({ params, searchParams }: Props) {
   const room = getRoom(params.type);
@@ -39,6 +42,7 @@ export default async function BookPage({ params, searchParams }: Props) {
     return <QuoteErrorScreen roomSlug={room.slug} message={message} />;
   }
 
+  const images = await getListingImages(room.listingId);
   const nights = differenceInCalendarDays(parseISO(checkOut), parseISO(checkIn));
 
   return (
@@ -63,9 +67,18 @@ export default async function BookPage({ params, searchParams }: Props) {
         </div>
 
         <aside className="lg:sticky lg:top-32 self-start">
-          <div className="relative aspect-[4/3] mb-6">
-            <Image src={room.image} alt={room.alt} fill className="object-cover" sizes="400px" />
+          <div className="relative aspect-[4/3] mb-2">
+            <Image src={images.primary} alt={images.primaryAlt} fill className="object-cover" sizes="400px" unoptimized />
           </div>
+          {images.gallery.length > 1 && (
+            <div className="grid grid-cols-4 gap-1 mb-6">
+              {images.gallery.slice(1, 5).map((g, i) => (
+                <div key={i} className="relative aspect-square">
+                  <Image src={g.url} alt={g.alt} fill className="object-cover" sizes="100px" unoptimized />
+                </div>
+              ))}
+            </div>
+          )}
           <div className="bg-white p-6 shadow-sm">
             <div className="flex justify-between text-xs uppercase tracking-[0.2em] text-plymouth-gray mb-4">
               <span>{format(parseISO(checkIn), "MMM d")} — {format(parseISO(checkOut), "MMM d")}</span>
