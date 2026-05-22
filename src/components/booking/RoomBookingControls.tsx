@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { format, addMonths, parseISO } from "date-fns";
 import { DateRangePicker, type DateRangeValue } from "./DateRangePicker";
@@ -12,8 +11,13 @@ interface Props {
   listingId: string;
 }
 
+// Routes guests to the Guesty-hosted property page (theplymouthchicago.guestybookings.com)
+// with dates + guest count pre-filled. This is the "revert to Guesty embed"
+// path — the in-house /book/[type] flow is preserved on the
+// feature/custom-booking-flow-2026-05-22 branch for future restoration.
+const GUESTY_BOOKING_HOST = "https://theplymouthchicago.guestybookings.com";
+
 export function RoomBookingControls({ roomSlug, maxGuests, listingId }: Props) {
-  const router = useRouter();
   const [range, setRange] = useState<DateRangeValue>({});
   const [guests, setGuests] = useState(2);
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +41,7 @@ export function RoomBookingControls({ roomSlug, maxGuests, listingId }: Props) {
         }
       })
       .catch(() => {
-        // Soft-fail: empty list is safe, booking page still validates.
+        // Soft-fail: empty list is safe.
       });
     return () => ctl.abort();
   }, [roomSlug, listingId]);
@@ -51,11 +55,11 @@ export function RoomBookingControls({ roomSlug, maxGuests, listingId }: Props) {
     }
     setSubmitting(true);
     const params = new URLSearchParams({
+      minOccupancy: String(guests),
       checkIn: format(range.from, "yyyy-MM-dd"),
       checkOut: format(range.to, "yyyy-MM-dd"),
-      guests: String(guests),
     });
-    router.push(`/book/${roomSlug}?${params.toString()}`);
+    window.location.href = `${GUESTY_BOOKING_HOST}/en/properties/${listingId}?${params.toString()}`;
   };
 
   return (
