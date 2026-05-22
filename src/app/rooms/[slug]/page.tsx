@@ -3,9 +3,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { ROOMS, getRoom } from "@/lib/rooms";
 import { getListingImages } from "@/lib/listing-images";
-import { getListingDescription } from "@/lib/listing-description";
 import { ListingImageView } from "@/components/booking/ListingImageView";
 import { RoomBookingControls } from "@/components/booking/RoomBookingControls";
+import { ListingLongDescription } from "@/components/booking/ListingLongDescription";
 
 // Per-floorplan detail page mirroring the section structure used on the
 // Guesty-hosted property page. Pulls long-form content from the canonical
@@ -36,10 +36,7 @@ export default async function RoomDetailPage({ params }: Props) {
   const room = getRoom(params.slug);
   if (!room) notFound();
 
-  const [images, desc] = await Promise.all([
-    getListingImages(room.listingId),
-    getListingDescription(room.listingId),
-  ]);
+  const images = await getListingImages(room.listingId);
 
   return (
     <main className="bg-plymouth-cream min-h-screen">
@@ -62,8 +59,8 @@ export default async function RoomDetailPage({ params }: Props) {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mt-8">
           {/* Content column */}
-          <article className="lg:col-span-2 space-y-12">
-            <header>
+          <article className="lg:col-span-2">
+            <header className="mb-12">
               <p className="text-plymouth-brass text-xs uppercase tracking-[0.3em] mb-3">
                 Suite
               </p>
@@ -79,53 +76,7 @@ export default async function RoomDetailPage({ params }: Props) {
               </p>
             </header>
 
-            {desc.summary && (
-              <DescSection title="Description">
-                <BodyText text={desc.summary} />
-              </DescSection>
-            )}
-
-            {desc.space && (
-              <DescSection title="The Space">
-                <BodyText text={desc.space} />
-              </DescSection>
-            )}
-
-            {desc.access && (
-              <DescSection title="Guest Access">
-                <BodyText text={desc.access} />
-              </DescSection>
-            )}
-
-            {desc.neighborhood && (
-              <DescSection title="Neighborhood">
-                <BodyText text={desc.neighborhood} />
-              </DescSection>
-            )}
-
-            {desc.interactionWithGuests && (
-              <DescSection title="Interaction">
-                <BodyText text={desc.interactionWithGuests} />
-              </DescSection>
-            )}
-
-            {desc.transit && (
-              <DescSection title="Getting Around">
-                <BodyText text={desc.transit} />
-              </DescSection>
-            )}
-
-            {desc.notes && (
-              <DescSection title="Other things to note">
-                <BodyText text={desc.notes} />
-              </DescSection>
-            )}
-
-            {desc.houseRules && (
-              <DescSection title="House Rules">
-                <BodyText text={desc.houseRules} />
-              </DescSection>
-            )}
+            <ListingLongDescription listingId={room.listingId} variant="display" />
           </article>
 
           {/* Sticky booking widget */}
@@ -161,32 +112,3 @@ export default async function RoomDetailPage({ params }: Props) {
   );
 }
 
-function DescSection({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section>
-      <h2 className="font-display text-2xl text-plymouth-black mb-4">{title}</h2>
-      <div className="text-plymouth-charcoal leading-relaxed space-y-4">
-        {children}
-      </div>
-    </section>
-  );
-}
-
-// Guesty publicDescription fields are plain text with paragraph breaks via
-// newlines. Render each paragraph as its own <p>; preserve single newlines
-// inside a paragraph as visual breaks.
-function BodyText({ text }: { text: string }) {
-  const paragraphs = text
-    .split(/\n\s*\n+/)
-    .map((p) => p.trim())
-    .filter(Boolean);
-  return (
-    <>
-      {paragraphs.map((p, i) => (
-        <p key={i} className="whitespace-pre-line">
-          {p}
-        </p>
-      ))}
-    </>
-  );
-}
