@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { format, parseISO } from "date-fns";
 import type { Quote } from "@/lib/types";
 import { CheckoutForm } from "./CheckoutForm";
+import { DateRangePicker, type DateRangeValue } from "./DateRangePicker";
 import { ListingImageView } from "./ListingImageView";
 
 interface ListingImage {
@@ -15,6 +17,7 @@ interface ListingImage {
 interface Props {
   initialQuote: Quote;
   roomName: string;
+  roomSlug: string;
   images: ListingImage;
   checkIn: string;
   checkOut: string;
@@ -25,12 +28,14 @@ interface Props {
 export function BookingPanel({
   initialQuote,
   roomName,
+  roomSlug,
   images,
   checkIn,
   checkOut,
   guestsCount,
   nights,
 }: Props) {
+  const router = useRouter();
   const [quote, setQuote] = useState<Quote>(initialQuote);
   const [code, setCode] = useState<string>("");
   const [applying, setApplying] = useState(false);
@@ -95,6 +100,46 @@ export function BookingPanel({
     }
   }
 
+  const priceCard = (
+    <div className="border border-plymouth-charcoal/15 p-5 my-6">
+      <DateEditor
+        checkIn={checkIn}
+        checkOut={checkOut}
+        nights={nights}
+        onChange={(from, to) => {
+          const params = new URLSearchParams({
+            checkIn: format(from, "yyyy-MM-dd"),
+            checkOut: format(to, "yyyy-MM-dd"),
+            guests: String(guestsCount),
+          });
+          router.push(`/book/${roomSlug}?${params.toString()}`);
+        }}
+      />
+      <div className="text-xs uppercase tracking-[0.2em] text-plymouth-charcoal/70 mb-6">
+        {guestsCount} {guestsCount === 1 ? "guest" : "guests"}
+      </div>
+
+      <PriceBreakdown quote={quote} discount={discount} />
+
+      <PromoSection
+        code={code}
+        setCode={setCode}
+        appliedCode={appliedCode}
+        discount={discount}
+        currency={quote.currency}
+        applying={applying}
+        error={promoError}
+        onApply={applyCode}
+        onRemove={removeCode}
+      />
+      <p className="text-[11px] text-plymouth-charcoal/60 mt-5 leading-relaxed">
+        You won&apos;t be charged until you confirm your booking on the next step.{" "}
+        <strong>Non-refundable.</strong> All cancellations forfeit the full reservation amount.{" "}
+        <a href="/terms" className="underline hover:text-plymouth-black">See full policy</a>.
+      </p>
+    </div>
+  );
+
   return (
     <div>
       <div className="mb-10">
@@ -108,41 +153,75 @@ export function BookingPanel({
       <div className="bg-white p-8 shadow-sm max-w-2xl mx-auto">
         <h2 className="font-display text-display-sm text-plymouth-black mb-6">Your details</h2>
 
-        <CheckoutForm quote={quote} roomName={roomName} couponCode={appliedCode} />
-
-        <div className="border border-plymouth-charcoal/15 p-5 mt-8">
-          <div className="flex justify-between text-xs uppercase tracking-[0.2em] text-plymouth-charcoal/70 mb-4">
-            <span>
-              {format(parseISO(checkIn), "MMM d")} — {format(parseISO(checkOut), "MMM d")}
-            </span>
-            <span>
-              {nights} {nights === 1 ? "night" : "nights"}
-            </span>
-          </div>
-          <div className="text-xs uppercase tracking-[0.2em] text-plymouth-charcoal/70 mb-6">
-            {guestsCount} {guestsCount === 1 ? "guest" : "guests"}
-          </div>
-
-          <PriceBreakdown quote={quote} discount={discount} />
-
-          <PromoSection
-            code={code}
-            setCode={setCode}
-            appliedCode={appliedCode}
-            discount={discount}
-            currency={quote.currency}
-            applying={applying}
-            error={promoError}
-            onApply={applyCode}
-            onRemove={removeCode}
-          />
-          <p className="text-[11px] text-plymouth-charcoal/60 mt-5 leading-relaxed">
-            You won&apos;t be charged until you confirm your booking on the next step.{" "}
-            <strong>Non-refundable.</strong> All cancellations forfeit the full reservation amount.{" "}
-            <a href="/terms" className="underline hover:text-plymouth-black">See full policy</a>.
-          </p>
-        </div>
+        <CheckoutForm
+          quote={quote}
+          roomName={roomName}
+          couponCode={appliedCode}
+          priceCard={priceCard}
+        />
       </div>
+    </div>
+  );
+}
+
+function DateEditor({
+  checkIn,
+  checkOut,
+  nights,
+  onChange,
+}: {
+  checkIn: string;
+  checkOut: string;
+  nights: number;
+  onChange: (from: Date, to: Date) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [range, setRange] = useState<DateRangeValue>({
+    from: parseISO(checkIn),
+    to: parseISO(checkOut),
+  });
+
+  if (!editing) {
+    return (
+      <div className="flex justify-between items-start text-xs uppercase tracking-[0.2em] text-plymouth-charcoal/70 mb-4 gap-3">
+        <div className="flex flex-col gap-1">
+          <span className="text-plymouth-black tracking-[0.18em]">
+            {format(parseISO(checkIn), "MMM d")} — {format(parseISO(checkOut), "MMM d")}
+          </span>
+          <span>
+            {nights} {nights === 1 ? "night" : "nights"}
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={() => setEditing(true)}
+          className="text-plymouth-brass underline hover:text-plymouth-black text-[10px] tracking-[0.18em]"
+        >
+          Edit dates
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mb-4">
+      <DateRangePicker
+        value={range}
+        onChange={(r) => {
+          setRange(r);
+          if (r.from && r.to && r.from.getTime() !== r.to.getTime()) {
+            setTimeout(() => onChange(r.from!, r.to!), 0);
+          }
+        }}
+        variant="light"
+      />
+      <button
+        type="button"
+        onClick={() => setEditing(false)}
+        className="mt-2 text-[10px] uppercase tracking-[0.18em] text-plymouth-charcoal/60 hover:text-plymouth-charcoal underline"
+      >
+        Cancel
+      </button>
     </div>
   );
 }

@@ -103,6 +103,7 @@ export default async function BookPage({ params, searchParams }: Props) {
         <BookingPanel
           initialQuote={quote}
           roomName={room.name}
+          roomSlug={room.slug}
           images={images}
           checkIn={checkIn}
           checkOut={checkOut}

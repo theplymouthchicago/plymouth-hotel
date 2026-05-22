@@ -17,9 +17,15 @@ interface Props {
   quote: Quote;
   roomName: string;
   couponCode?: string;
+  /**
+   * Optional content rendered inside the form, between the input fields and
+   * the submit button. Used to put the price card directly above the pay
+   * button so guests see the total they're confirming.
+   */
+  priceCard?: React.ReactNode;
 }
 
-export function CheckoutForm({ quote, roomName, couponCode }: Props) {
+export function CheckoutForm({ quote, roomName, couponCode, priceCard }: Props) {
   const [step, setStep] = useState<"guest" | "pay">("guest");
   const [guest, setGuest] = useState({ firstName: "", lastName: "", email: "", phone: "" });
   const [creating, setCreating] = useState(false);
@@ -78,6 +84,7 @@ export function CheckoutForm({ quote, roomName, couponCode }: Props) {
           <Field label="Email" type="email" value={guest.email} onChange={(v) => setGuest({ ...guest, email: v })} required />
           <Field label="Phone" type="tel" value={guest.phone} onChange={(v) => setGuest({ ...guest, phone: v })} required />
           {error && <p className="text-red-700 text-sm">{error}</p>}
+          {priceCard}
           <button
             type="submit"
             disabled={creating}
@@ -90,7 +97,13 @@ export function CheckoutForm({ quote, roomName, couponCode }: Props) {
 
       {step === "pay" && clientSecret && reservationId && (
         <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: "stripe" } }}>
-          <PayStep clientSecret={clientSecret} reservationId={reservationId} guest={guest} roomName={roomName} />
+          <PayStep
+            clientSecret={clientSecret}
+            reservationId={reservationId}
+            guest={guest}
+            roomName={roomName}
+            priceCard={priceCard}
+          />
         </Elements>
       )}
     </div>
@@ -101,11 +114,13 @@ function PayStep({
   reservationId,
   guest,
   roomName,
+  priceCard,
 }: {
   clientSecret: string;
   reservationId: string;
   guest: { firstName: string; lastName: string; email: string; phone: string };
   roomName: string;
+  priceCard?: React.ReactNode;
 }) {
   const stripe = useStripe();
   const elements = useElements();
@@ -160,6 +175,7 @@ function PayStep({
         .{" "}
         <strong className="text-plymouth-charcoal">Non-refundable</strong> — all cancellations forfeit the full reservation amount.
       </p>
+      {priceCard}
       <button
         type="submit"
         disabled={!stripe || submitting}
