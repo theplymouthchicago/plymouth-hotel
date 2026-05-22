@@ -24,8 +24,10 @@ export function RoomBookingControls({ roomSlug, maxGuests, listingId }: Props) {
     const ctl = new AbortController();
     const from = format(new Date(), "yyyy-MM-dd");
     const to = format(addMonths(new Date(), 12), "yyyy-MM-dd");
+    // Aggregate availability across all sibling units of this floorplan —
+    // only mark a date as blocked if every 2BR (or 3BR / 4BR) unit is taken.
     fetch(
-      `/api/booking/blocked-dates?listingId=${listingId}&from=${from}&to=${to}`,
+      `/api/booking/blocked-dates?floorplan=${encodeURIComponent(roomSlug)}&from=${from}&to=${to}`,
       { signal: ctl.signal },
     )
       .then((r) => r.json())
@@ -38,7 +40,7 @@ export function RoomBookingControls({ roomSlug, maxGuests, listingId }: Props) {
         // Soft-fail: empty list is safe, booking page still validates.
       });
     return () => ctl.abort();
-  }, [listingId]);
+  }, [roomSlug, listingId]);
 
   const canSubmit = !!(range.from && range.to);
 
