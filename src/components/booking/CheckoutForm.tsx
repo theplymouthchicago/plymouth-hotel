@@ -28,6 +28,9 @@ interface Props {
 export function CheckoutForm({ quote, roomName, couponCode, priceCard }: Props) {
   const [step, setStep] = useState<"guest" | "pay">("guest");
   const [guest, setGuest] = useState({ firstName: "", lastName: "", email: "", phone: "" });
+  const [specialRequest, setSpecialRequest] = useState("");
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [marketingOptIn, setMarketingOptIn] = useState(false);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
@@ -37,6 +40,8 @@ export function CheckoutForm({ quote, roomName, couponCode, priceCard }: Props) 
     if (!guest.firstName.trim() || !guest.lastName.trim()) return "First and last name are required.";
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(guest.email)) return "Enter a valid email address.";
     if (!/^[+\d().\-\s]{7,}$/.test(guest.phone)) return "Enter a valid phone number.";
+    if (!specialRequest.trim()) return "Add a special request (or write 'None').";
+    if (!agreedToTerms) return "You must accept the Privacy Policy and Terms & Booking Policy to continue.";
     return null;
   };
 
@@ -57,6 +62,8 @@ export function CheckoutForm({ quote, roomName, couponCode, priceCard }: Props) 
           checkOutDate: quote.checkOutDate,
           guestsCount: quote.guestsCount,
           guest,
+          specialRequest: specialRequest.trim(),
+          marketingOptIn,
           expectedTotal: quote.total,
           ...(couponCode ? { couponCode } : {}),
         }),
@@ -83,6 +90,50 @@ export function CheckoutForm({ quote, roomName, couponCode, priceCard }: Props) 
           </div>
           <Field label="Email" type="email" value={guest.email} onChange={(v) => setGuest({ ...guest, email: v })} required />
           <Field label="Phone" type="tel" value={guest.phone} onChange={(v) => setGuest({ ...guest, phone: v })} required />
+          <label className="block">
+            <span className="text-[10px] uppercase tracking-[0.2em] text-plymouth-gray">
+              Special request *
+            </span>
+            <textarea
+              value={specialRequest}
+              onChange={(e) => setSpecialRequest(e.target.value)}
+              required
+              rows={3}
+              placeholder="e.g. early check-in, parking question, anything else we should know"
+              className="mt-1 w-full border border-gray-300 px-4 py-3 text-base font-body text-plymouth-black focus:outline-none focus:border-plymouth-gold resize-y"
+            />
+          </label>
+          <label className="flex items-start gap-3 text-sm text-plymouth-charcoal cursor-pointer">
+            <input
+              type="checkbox"
+              checked={agreedToTerms}
+              onChange={(e) => setAgreedToTerms(e.target.checked)}
+              required
+              className="mt-1 w-4 h-4 border-gray-400 text-plymouth-brass focus:ring-plymouth-gold"
+            />
+            <span>
+              I have read and accept the{" "}
+              <a href="/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-plymouth-black">
+                Privacy Policy
+              </a>{" "}
+              and{" "}
+              <a href="/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-plymouth-black">
+                Terms &amp; Booking Policy
+              </a>
+              . <span className="text-red-700">*</span>
+            </span>
+          </label>
+          <label className="flex items-start gap-3 text-sm text-plymouth-charcoal cursor-pointer">
+            <input
+              type="checkbox"
+              checked={marketingOptIn}
+              onChange={(e) => setMarketingOptIn(e.target.checked)}
+              className="mt-1 w-4 h-4 border-gray-400 text-plymouth-brass focus:ring-plymouth-gold"
+            />
+            <span>
+              I am interested in receiving discounts, promotions and news about The Plymouth Chicago.
+            </span>
+          </label>
           {error && <p className="text-red-700 text-sm">{error}</p>}
           {priceCard}
           <button

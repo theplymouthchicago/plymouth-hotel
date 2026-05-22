@@ -17,6 +17,8 @@ interface CreateBody {
   };
   expectedTotal: number;
   couponCode?: string;
+  specialRequest?: string;
+  marketingOptIn?: boolean;
 }
 
 export async function POST(req: NextRequest) {
@@ -27,7 +29,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { quoteId, listingId, checkInDate, checkOutDate, guestsCount, guest, expectedTotal, couponCode } = body;
+  const { quoteId, listingId, checkInDate, checkOutDate, guestsCount, guest, expectedTotal, couponCode, specialRequest, marketingOptIn } = body;
   if (
     !quoteId ||
     !listingId ||
@@ -122,6 +124,15 @@ export async function POST(req: NextRequest) {
     },
   };
   if (couponCode?.trim()) reservationPayload.coupons = [couponCode.trim()];
+  // Special request → Guesty reservation note (visible to ops; ends up in
+  // the Guesty inbox and on the reservation record).
+  if (specialRequest && specialRequest.trim()) {
+    reservationPayload.note = specialRequest.trim();
+  }
+  // Marketing opt-in → log for now (no CRM wired up yet). If false, omit.
+  if (marketingOptIn === true) {
+    console.log(`[booking/create] marketing opt-in: ${guest.email}`);
+  }
   let reservationId: string;
   try {
     const reservation = (await guestyOpenFetch("/v1/reservations", {
