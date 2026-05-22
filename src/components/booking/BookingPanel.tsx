@@ -108,7 +108,9 @@ export function BookingPanel({
       <div className="bg-white p-8 shadow-sm max-w-2xl mx-auto">
         <h2 className="font-display text-display-sm text-plymouth-black mb-6">Your details</h2>
 
-        <div className="border border-plymouth-charcoal/15 p-5 mb-8">
+        <CheckoutForm quote={quote} roomName={roomName} couponCode={appliedCode} />
+
+        <div className="border border-plymouth-charcoal/15 p-5 mt-8">
           <div className="flex justify-between text-xs uppercase tracking-[0.2em] text-plymouth-charcoal/70 mb-4">
             <span>
               {format(parseISO(checkIn), "MMM d")} — {format(parseISO(checkOut), "MMM d")}
@@ -140,8 +142,6 @@ export function BookingPanel({
             <a href="/terms" className="underline hover:text-plymouth-black">See full policy</a>.
           </p>
         </div>
-
-        <CheckoutForm quote={quote} roomName={roomName} couponCode={appliedCode} />
       </div>
     </div>
   );
