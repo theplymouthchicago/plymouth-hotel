@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { ROOMS } from "@/lib/rooms";
 import { RoomBookingControls } from "@/components/booking/RoomBookingControls";
 import { getListingImages } from "@/lib/listing-images";
@@ -108,6 +109,13 @@ export default async function RoomsPage() {
                 </div>
 
                 <RoomBookingControls roomSlug={room.slug} maxGuests={room.maxGuests} listingId={room.listingId} />
+
+                <Link
+                  href={`/rooms/${room.slug}`}
+                  className="inline-flex items-center gap-2 mt-6 text-xs uppercase tracking-[0.2em] text-plymouth-charcoal/70 hover:text-plymouth-brass transition-colors"
+                >
+                  View suite details →
+                </Link>
               </div>
             </div>
           </div>
