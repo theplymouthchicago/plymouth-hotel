@@ -50,7 +50,7 @@ export default async function RoomsPage() {
           </h1>
           <p className="text-white/60 text-lg max-w-2xl mx-auto leading-relaxed">
             2, 3, and 4 bedroom suites in a century-old Loop landmark. Real
-            kitchens, real space, real design — floors 6 through 11.
+            kitchens, real space, real design.
           </p>
         </div>
       </section>
