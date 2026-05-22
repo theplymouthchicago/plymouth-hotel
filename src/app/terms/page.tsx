@@ -407,8 +407,8 @@ export default function TermsPage() {
           <p>
             If you have any questions about these Terms and Conditions, You
             can contact us by email:{" "}
-            <a href="mailto:pgasien@outlook.com" className="underline">
-              pgasien@outlook.com
+            <a href="mailto:info@theplymouthchicago.com" className="underline">
+              info@theplymouthchicago.com
             </a>
             .
           </p>
