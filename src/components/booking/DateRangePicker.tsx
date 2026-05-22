@@ -99,6 +99,8 @@ export function DateRangePicker({
               { before: new Date() },
               ...unavailableDates.map((d) => ({ from: d, to: d })),
             ]}
+            modifiers={{ booked: unavailableDates }}
+            modifiersClassNames={{ booked: "rdp-booked" }}
             min={minNights}
           />
           <div className="flex justify-between items-center mt-3 pt-3 border-t border-current/10">
@@ -178,6 +180,20 @@ export function DateRangePicker({
           opacity: 0.3;
           text-decoration: line-through;
           cursor: not-allowed;
+        }
+        /* Booked nights get a red tint so guests can distinguish them from
+           "in the past" — the .rdp-booked modifier is set above for any date
+           in unavailableDates. Overrides .rdp-disabled styling for these. */
+        .plymouth-daypicker .rdp-booked .rdp-day_button {
+          opacity: 1;
+          background: rgba(220, 38, 38, 0.10);
+          color: rgb(185, 28, 28);
+          text-decoration: line-through;
+          text-decoration-color: rgb(185, 28, 28);
+          cursor: not-allowed;
+        }
+        .plymouth-daypicker .rdp-booked .rdp-day_button:hover {
+          background: rgba(220, 38, 38, 0.16);
         }
       `}</style>
     </div>
