@@ -8,6 +8,7 @@ import { checkAvailability } from "@/lib/booking/availability";
 import { getListingImages } from "@/lib/listing-images";
 import { BookingPanel } from "@/components/booking/BookingPanel";
 import { StayIncludes } from "@/components/booking/StayIncludes";
+import { FLOORPLAN_LISTINGS, floorplanForSlug } from "@/lib/floorplan-listings";
 
 interface Props {
   params: { type: string };
@@ -30,26 +31,45 @@ export default async function BookPage({ params, searchParams }: Props) {
     return <MissingParams roomSlug={room.slug} message={`This suite holds 1–${room.maxGuests} guests.`} />;
   }
 
-  // Validate availability with Guesty before showing pricing/payment.
-  const availability = await checkAvailability(room.listingId, checkIn, checkOut).catch(
-    () => ({ available: true, blockedDates: [] as string[] }), // be lenient on calendar fetch errors — quote will be authoritative
+  // Plymouth has 6 physical units per floorplan; the canonical (room.listingId)
+  // is preferred because it matches the photos / amenity card, but if it's
+  // booked for these dates we route the guest to any other free sibling. All
+  // siblings share the same floorplan, sqft, and amenities — so the guest
+  // experience is equivalent and the calendar's "available" promise actually
+  // holds at booking time.
+  const floorplanKey = floorplanForSlug(room.slug);
+  const candidates = floorplanKey ? FLOORPLAN_LISTINGS[floorplanKey] : [room.listingId];
+  const availResults = await Promise.all(
+    candidates.map((id) =>
+      checkAvailability(id, checkIn, checkOut).catch(
+        // Lenient on per-listing errors — quote on the picked candidate is authoritative.
+        () => ({ available: true, blockedDates: [] as string[] }),
+      ),
+    ),
   );
-  if (!availability.available) {
+  const pickedIdx = availResults.findIndex((r) => r.available);
+  if (pickedIdx === -1) {
+    // Every unit of this floorplan is booked. Surface the union of blocked
+    // dates so the user sees a useful "conflicting nights" list.
+    const allBlocked = Array.from(
+      new Set(availResults.flatMap((r) => r.blockedDates)),
+    ).sort();
     return (
       <UnavailableScreen
         roomSlug={room.slug}
         roomName={room.name}
         checkIn={checkIn}
         checkOut={checkOut}
-        blockedDates={availability.blockedDates}
+        blockedDates={allBlocked}
       />
     );
   }
+  const bookingListingId = candidates[pickedIdx];
 
   let quote: Quote;
   try {
     quote = await fetchQuote({
-      listingId: room.listingId,
+      listingId: bookingListingId,
       checkInDate: checkIn,
       checkOutDate: checkOut,
       guestsCount: guestsNum,
