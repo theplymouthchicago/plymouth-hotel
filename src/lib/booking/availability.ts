@@ -1,4 +1,5 @@
 import { guestyOpenFetch, GuestyApiError } from "@/app/api/guesty/open-client";
+import { extractDays, isUnavailable } from "@/lib/booking/calendar-parse";
 
 export interface AvailabilityResult {
   available: boolean;
@@ -12,14 +13,6 @@ export class AvailabilityError extends Error {
     this.name = "AvailabilityError";
     this.status = status;
   }
-}
-
-interface CalendarDay {
-  date: string;
-  status?: string;
-  available?: boolean;
-  isAvailable?: boolean;
-  blocks?: unknown;
 }
 
 export async function checkAvailability(
@@ -59,23 +52,3 @@ export async function checkAvailability(
   return { available: blocked.length === 0, blockedDates: blocked };
 }
 
-function extractDays(raw: unknown): CalendarDay[] | null {
-  if (Array.isArray(raw)) return raw as CalendarDay[];
-  if (raw && typeof raw === "object") {
-    const obj = raw as Record<string, unknown>;
-    for (const key of ["data", "days", "results"]) {
-      const v = obj[key];
-      if (Array.isArray(v)) return v as CalendarDay[];
-    }
-  }
-  return null;
-}
-
-function isUnavailable(day: CalendarDay): boolean {
-  if (typeof day.available === "boolean") return !day.available;
-  if (typeof day.isAvailable === "boolean") return !day.isAvailable;
-  if (typeof day.status === "string") {
-    return !["available", "open"].includes(day.status.toLowerCase());
-  }
-  return false;
-}
