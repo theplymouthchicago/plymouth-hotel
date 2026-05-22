@@ -100,12 +100,6 @@ export default async function BookPage({ params, searchParams }: Props) {
 
         <AvailabilityBadge checkIn={checkIn} checkOut={checkOut} nights={nights} />
 
-        <StayIncludes listingId={room.listingId} roomName={room.name} />
-
-        <div className="mb-8">
-          <ListingLongDescription listingId={room.listingId} variant="compact" />
-        </div>
-
         <BookingPanel
           initialQuote={quote}
           roomName={room.name}
@@ -115,6 +109,14 @@ export default async function BookPage({ params, searchParams }: Props) {
           guestsCount={guestsNum}
           nights={nights}
         />
+
+        <div className="mt-12">
+          <StayIncludes listingId={room.listingId} roomName={room.name} />
+        </div>
+
+        <div className="mb-8">
+          <ListingLongDescription listingId={room.listingId} variant="compact" />
+        </div>
       </div>
     </main>
   );
