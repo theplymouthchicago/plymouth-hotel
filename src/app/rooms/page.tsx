@@ -31,6 +31,7 @@ export default async function RoomsPage() {
         alt: images.primaryAlt || r.alt,
         gallery: images.gallery.slice(0, 6),
         maxGuests: r.maxGuests,
+        listingId: r.listingId,
       };
     })
   );
@@ -106,7 +107,7 @@ export default async function RoomsPage() {
                   ))}
                 </div>
 
-                <RoomBookingControls roomSlug={room.slug} maxGuests={room.maxGuests} />
+                <RoomBookingControls roomSlug={room.slug} maxGuests={room.maxGuests} listingId={room.listingId} />
               </div>
             </div>
           </div>

@@ -1,22 +1,44 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { format } from "date-fns";
+import { useEffect, useState } from "react";
+import { format, addMonths, parseISO } from "date-fns";
 import { DateRangePicker, type DateRangeValue } from "./DateRangePicker";
 import { GuestSelector } from "./GuestSelector";
 
 interface Props {
   roomSlug: string;
   maxGuests: number;
+  listingId: string;
 }
 
-export function RoomBookingControls({ roomSlug, maxGuests }: Props) {
+export function RoomBookingControls({ roomSlug, maxGuests, listingId }: Props) {
   const router = useRouter();
   const [range, setRange] = useState<DateRangeValue>({});
   const [guests, setGuests] = useState(2);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [unavailableDates, setUnavailableDates] = useState<Date[]>([]);
+
+  useEffect(() => {
+    const ctl = new AbortController();
+    const from = format(new Date(), "yyyy-MM-dd");
+    const to = format(addMonths(new Date(), 12), "yyyy-MM-dd");
+    fetch(
+      `/api/booking/blocked-dates?listingId=${listingId}&from=${from}&to=${to}`,
+      { signal: ctl.signal },
+    )
+      .then((r) => r.json())
+      .then((j: { blockedDates?: string[] }) => {
+        if (Array.isArray(j.blockedDates)) {
+          setUnavailableDates(j.blockedDates.map((s) => parseISO(s)));
+        }
+      })
+      .catch(() => {
+        // Soft-fail: empty list is safe, booking page still validates.
+      });
+    return () => ctl.abort();
+  }, [listingId]);
 
   const canSubmit = !!(range.from && range.to);
 
@@ -37,7 +59,7 @@ export function RoomBookingControls({ roomSlug, maxGuests }: Props) {
   return (
     <div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-        <DateRangePicker value={range} onChange={(r) => { setRange(r); setError(null); }} variant="light" />
+        <DateRangePicker value={range} onChange={(r) => { setRange(r); setError(null); }} variant="light" unavailableDates={unavailableDates} />
         <GuestSelector value={guests} onChange={setGuests} max={maxGuests} variant="light" />
       </div>
       {error && <p className="text-red-700 text-xs mb-3">{error}</p>}
