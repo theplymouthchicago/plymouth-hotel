@@ -96,8 +96,16 @@ export function BookingPanel({
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-10">
-      <div className="bg-white p-8 shadow-sm">
+    <div>
+      <div className="mb-10">
+        <ListingImageView
+          primary={{ url: images.primary, alt: images.primaryAlt }}
+          gallery={images.gallery.filter((g) => g.url !== images.primary)}
+          variant="book-sidebar"
+        />
+      </div>
+
+      <div className="bg-white p-8 shadow-sm max-w-2xl mx-auto">
         <h2 className="font-display text-display-sm text-plymouth-black mb-6">Your details</h2>
 
         <div className="border border-plymouth-charcoal/15 p-5 mb-8">
@@ -135,14 +143,6 @@ export function BookingPanel({
 
         <CheckoutForm quote={quote} roomName={roomName} couponCode={appliedCode} />
       </div>
-
-      <aside className="lg:sticky lg:top-32 self-start">
-        <ListingImageView
-          primary={{ url: images.primary, alt: images.primaryAlt }}
-          gallery={images.gallery.filter((g) => g.url !== images.primary)}
-          variant="book-sidebar"
-        />
-      </aside>
     </div>
   );
 }
