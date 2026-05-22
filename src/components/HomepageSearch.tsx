@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
-import { format, addDays } from "date-fns";
+import { useEffect, useMemo, useState } from "react";
+import { format, addDays, addMonths, parseISO } from "date-fns";
 import { DateRangePicker, type DateRangeValue } from "./booking/DateRangePicker";
 import { GuestSelector } from "./booking/GuestSelector";
 
@@ -23,9 +23,32 @@ export function HomepageSearch() {
   const [guests, setGuests] = useState(2);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [unavailableDates, setUnavailableDates] = useState<Date[]>([]);
 
   const suite = SUITES.find((s) => s.slug === suiteSlug)!;
   const cappedGuests = Math.min(guests, suite.maxGuests);
+
+  // Aggregate availability across all sibling units of the selected floorplan
+  // (blocked iff every unit is taken). Refetches when the suite pill changes.
+  useEffect(() => {
+    const ctl = new AbortController();
+    const from = format(new Date(), "yyyy-MM-dd");
+    const to = format(addMonths(new Date(), 12), "yyyy-MM-dd");
+    fetch(
+      `/api/booking/blocked-dates?floorplan=${encodeURIComponent(suiteSlug)}&from=${from}&to=${to}`,
+      { signal: ctl.signal },
+    )
+      .then((r) => r.json())
+      .then((j: { blockedDates?: string[] }) => {
+        if (Array.isArray(j.blockedDates)) {
+          setUnavailableDates(j.blockedDates.map((s) => parseISO(s)));
+        }
+      })
+      .catch(() => {
+        // Soft-fail: empty list is safe, booking page still validates.
+      });
+    return () => ctl.abort();
+  }, [suiteSlug]);
 
   const submit = () => {
     if (!range.from || !range.to) {
@@ -107,6 +130,7 @@ export function HomepageSearch() {
               }}
               variant="dark"
               className=""
+              unavailableDates={unavailableDates}
             />
             <GuestSelector
               value={cappedGuests}

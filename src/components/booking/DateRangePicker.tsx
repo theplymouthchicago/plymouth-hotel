@@ -80,7 +80,7 @@ export function DateRangePicker({
 
       {open && (
         <div
-          className={`plymouth-daypicker absolute z-50 mt-2 left-0 p-3 sm:p-4 shadow-2xl max-w-[calc(100vw-2rem)] overflow-auto ${
+          className={`plymouth-daypicker ${isDark ? "plymouth-daypicker-dark" : ""} absolute z-50 mt-2 left-0 p-3 sm:p-4 shadow-2xl max-w-[calc(100vw-2rem)] overflow-auto ${
             isDark
               ? "bg-plymouth-charcoal border border-plymouth-gold/30 text-white"
               : "bg-white border border-gray-200 text-plymouth-black"
@@ -194,6 +194,16 @@ export function DateRangePicker({
         }
         .plymouth-daypicker .rdp-booked .rdp-day_button:hover {
           background: rgba(220, 38, 38, 0.16);
+        }
+        /* Dark variant (homepage hero) — red-300 reads on charcoal,
+           red-600 disappears. */
+        .plymouth-daypicker-dark .rdp-booked .rdp-day_button {
+          background: rgba(248, 113, 113, 0.18);
+          color: rgb(252, 165, 165);
+          text-decoration-color: rgb(252, 165, 165);
+        }
+        .plymouth-daypicker-dark .rdp-booked .rdp-day_button:hover {
+          background: rgba(248, 113, 113, 0.28);
         }
       `}</style>
     </div>
