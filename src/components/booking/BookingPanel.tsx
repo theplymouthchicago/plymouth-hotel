@@ -99,16 +99,8 @@ export function BookingPanel({
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-10">
       <div className="bg-white p-8 shadow-sm">
         <h2 className="font-display text-display-sm text-plymouth-black mb-6">Your details</h2>
-        <CheckoutForm quote={quote} roomName={roomName} couponCode={appliedCode} />
-      </div>
 
-      <aside className="lg:sticky lg:top-32 self-start">
-        <ListingImageView
-          primary={{ url: images.primary, alt: images.primaryAlt }}
-          gallery={images.gallery.filter((g) => g.url !== images.primary)}
-          variant="book-sidebar"
-        />
-        <div className="bg-white p-6 shadow-sm">
+        <div className="border border-plymouth-charcoal/15 p-5 mb-8">
           <div className="flex justify-between text-xs uppercase tracking-[0.2em] text-plymouth-charcoal/70 mb-4">
             <span>
               {format(parseISO(checkIn), "MMM d")} — {format(parseISO(checkOut), "MMM d")}
@@ -134,13 +126,22 @@ export function BookingPanel({
             onApply={applyCode}
             onRemove={removeCode}
           />
+          <p className="text-[11px] text-plymouth-charcoal/60 mt-5 leading-relaxed">
+            You won&apos;t be charged until you confirm your booking on the next step.{" "}
+            <strong>Non-refundable.</strong> All cancellations forfeit the full reservation amount.{" "}
+            <a href="/terms" className="underline hover:text-plymouth-black">See full policy</a>.
+          </p>
         </div>
-        <p className="text-[11px] text-plymouth-charcoal/60 text-center mt-4 leading-relaxed">
-          You won&apos;t be charged until you confirm your booking on the next step.
-          <br />
-          <strong>Non-refundable.</strong> All cancellations forfeit the full reservation amount.{" "}
-          <a href="/terms" className="underline hover:text-plymouth-black">See full policy</a>.
-        </p>
+
+        <CheckoutForm quote={quote} roomName={roomName} couponCode={appliedCode} />
+      </div>
+
+      <aside className="lg:sticky lg:top-32 self-start">
+        <ListingImageView
+          primary={{ url: images.primary, alt: images.primaryAlt }}
+          gallery={images.gallery.filter((g) => g.url !== images.primary)}
+          variant="book-sidebar"
+        />
       </aside>
     </div>
   );
