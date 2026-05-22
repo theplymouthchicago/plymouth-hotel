@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/internal/refresh-guesty-token",
+      "schedule": "0 12 * * *"
+    }
+  ]
+}
