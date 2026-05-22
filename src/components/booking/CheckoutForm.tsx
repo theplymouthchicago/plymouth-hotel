@@ -152,6 +152,14 @@ function PayStep({
         <PaymentElement />
       </div>
       {error && <p className="text-red-700 text-sm">{error}</p>}
+      <p className="text-[11px] text-plymouth-gray text-center leading-relaxed">
+        By confirming, you agree to our{" "}
+        <a href="/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-plymouth-black">
+          Terms &amp; Booking Policy
+        </a>
+        .{" "}
+        <strong className="text-plymouth-charcoal">Non-refundable</strong> — all cancellations forfeit the full reservation amount.
+      </p>
       <button
         type="submit"
         disabled={!stripe || submitting}
@@ -159,9 +167,6 @@ function PayStep({
       >
         {submitting ? "Processing…" : "Confirm booking"}
       </button>
-      <p className="text-[11px] text-plymouth-gray text-center">
-        Free cancellation up to 48 hours before check-in. Cancellations within 48 hours forfeit the first night&apos;s rate.
-      </p>
     </form>
   );
 }

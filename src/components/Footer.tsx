@@ -9,6 +9,7 @@ const footerLinks = {
     { label: "Experience", href: "/experience" },
     { label: "Location", href: "/location" },
     { label: "FAQ", href: "/faq" },
+    { label: "Terms & Booking Policy", href: "/terms" },
   ],
   Connect: [
     { label: "Email Us", href: "mailto:info@theplymouthchicago.com" },

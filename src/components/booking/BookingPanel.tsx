@@ -138,7 +138,8 @@ export function BookingPanel({
         <p className="text-[11px] text-plymouth-charcoal/60 text-center mt-4 leading-relaxed">
           You won&apos;t be charged until you confirm your booking on the next step.
           <br />
-          Free cancellation up to 48 hours before check-in.
+          <strong>Non-refundable.</strong> All cancellations forfeit the full reservation amount.{" "}
+          <a href="/terms" className="underline hover:text-plymouth-black">See full policy</a>.
         </p>
       </aside>
     </div>
