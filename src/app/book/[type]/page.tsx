@@ -50,18 +50,19 @@ export default async function BookPage({ params, searchParams }: Props) {
   );
   const pickedIdx = availResults.findIndex((r) => r.available);
   if (pickedIdx === -1) {
-    // Every unit of this floorplan is booked. Surface the union of blocked
-    // dates so the user sees a useful "conflicting nights" list.
-    const allBlocked = Array.from(
-      new Set(availResults.flatMap((r) => r.blockedDates)),
-    ).sort();
+    // No single sibling has the whole range free. Surface concrete
+    // alternative sub-windows that DO fit on at least one sibling — much
+    // more useful than a flat "conflicting nights" list, since each night
+    // may be bookable on SOME unit just not contiguously.
+    const alternatives = findAlternatives(availResults, checkIn, checkOut);
     return (
       <UnavailableScreen
         roomSlug={room.slug}
         roomName={room.name}
         checkIn={checkIn}
         checkOut={checkOut}
-        blockedDates={allBlocked}
+        guestsCount={guestsNum}
+        alternatives={alternatives}
       />
     );
   }
@@ -156,17 +157,21 @@ function AvailabilityBadge({
 }
 
 function UnavailableScreen({
+  roomSlug,
   roomName,
   checkIn,
   checkOut,
-  blockedDates,
+  guestsCount,
+  alternatives,
 }: {
   roomSlug: string;
   roomName: string;
   checkIn: string;
   checkOut: string;
-  blockedDates: string[];
+  guestsCount: number;
+  alternatives: { from: string; to: string; nights: number }[];
 }) {
+  const requestedNights = differenceInCalendarDays(parseISO(checkOut), parseISO(checkIn));
   return (
     <main className="bg-plymouth-cream min-h-screen pt-32 pb-20 section-padding">
       <div className="max-w-container mx-auto text-center max-w-2xl">
@@ -175,22 +180,53 @@ function UnavailableScreen({
           Unavailable
         </div>
         <h1 className="font-display text-display-md text-plymouth-black mb-4">
-          Those dates are taken.
+          No suite is open for all {requestedNights} {requestedNights === 1 ? "night" : "nights"}.
         </h1>
-        <p className="text-plymouth-charcoal mb-2">
-          {roomName} is booked between{" "}
-          <strong>{format(parseISO(checkIn), "MMM d")}</strong> and{" "}
-          <strong>{format(parseISO(checkOut), "MMM d")}</strong>.
+        <p className="text-plymouth-charcoal mb-8">
+          We couldn&apos;t find a {roomName} open for the full window from{" "}
+          <strong>{format(parseISO(checkIn), "MMM d")}</strong> to{" "}
+          <strong>{format(parseISO(checkOut), "MMM d")}</strong>. Each night may
+          be open on a different unit, but a reservation has to stay on one
+          suite — so we can offer:
         </p>
-        {blockedDates.length > 0 && (
-          <p className="text-plymouth-charcoal/70 text-sm mb-2">
-            Conflicting nights:{" "}
-            {blockedDates.slice(0, 6).map((d) => format(parseISO(d), "MMM d")).join(", ")}
-            {blockedDates.length > 6 ? ` +${blockedDates.length - 6} more` : ""}
+        {alternatives.length > 0 ? (
+          <div className="space-y-3 mb-10">
+            {alternatives.map((alt) => {
+              const params = new URLSearchParams({
+                checkIn: alt.from,
+                checkOut: alt.to,
+                guests: String(guestsCount),
+              });
+              return (
+                <Link
+                  key={`${alt.from}_${alt.to}`}
+                  href={`/book/${roomSlug}?${params.toString()}`}
+                  className="block border border-plymouth-charcoal/20 bg-white px-5 py-4 hover:border-plymouth-brass hover:bg-plymouth-cream transition-colors text-left"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-display text-lg text-plymouth-black">
+                        {format(parseISO(alt.from), "MMM d")} → {format(parseISO(alt.to), "MMM d")}
+                      </div>
+                      <div className="text-xs uppercase tracking-[0.2em] text-plymouth-charcoal/70 mt-1">
+                        {alt.nights} {alt.nights === 1 ? "night" : "nights"} · same floorplan
+                      </div>
+                    </div>
+                    <span className="text-plymouth-brass text-sm uppercase tracking-[0.2em]">
+                      Try →
+                    </span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="text-plymouth-charcoal/70 mb-10 text-sm">
+            No alternative window in your range works either. Try different dates entirely, or call us.
           </p>
         )}
         <p className="text-plymouth-charcoal/70 mb-10 text-sm">
-          Try different dates, or call us at (708) 866-0029 and we&apos;ll help find an open suite.
+          Or call us at (708) 866-0029 and we can sometimes split a longer stay across units.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link
@@ -244,4 +280,77 @@ function QuoteErrorScreen({ message }: { roomSlug: string; message: string }) {
       </div>
     </main>
   );
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// Alternative-date suggestions for the UnavailableScreen.
+//
+// When no single sibling unit has the full requested window free, we look
+// for the longest contiguous available runs (≥2 nights) WITHIN that window
+// on any sibling and surface them as click-through suggestions. Lets a
+// guest who picked Jun 5-9 instantly retry Jun 7-9 if that's all the
+// floorplan can offer in their dates.
+// ──────────────────────────────────────────────────────────────────────────
+
+function addDaysISO(iso: string, n: number): string {
+  const d = new Date(iso + "T00:00:00Z");
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+
+function dateRangeISO(from: string, toExclusive: string): string[] {
+  const dates: string[] = [];
+  const start = new Date(from + "T00:00:00Z");
+  const end = new Date(toExclusive + "T00:00:00Z");
+  for (let d = new Date(start); d < end; d.setUTCDate(d.getUTCDate() + 1)) {
+    dates.push(d.toISOString().slice(0, 10));
+  }
+  return dates;
+}
+
+function findAlternatives(
+  availResults: { blockedDates: string[] }[],
+  checkIn: string,
+  checkOut: string,
+): { from: string; to: string; nights: number }[] {
+  const allDates = dateRangeISO(checkIn, checkOut);
+  const alts: { from: string; to: string; nights: number }[] = [];
+
+  for (const result of availResults) {
+    const blocked = new Set(result.blockedDates);
+    let runStart: string | null = null;
+    let runLen = 0;
+    const flush = () => {
+      if (runStart && runLen >= 2) {
+        alts.push({
+          from: runStart,
+          to: addDaysISO(runStart, runLen),
+          nights: runLen,
+        });
+      }
+      runStart = null;
+      runLen = 0;
+    };
+    for (const d of allDates) {
+      if (blocked.has(d)) {
+        flush();
+      } else {
+        if (runStart === null) runStart = d;
+        runLen++;
+      }
+    }
+    flush();
+  }
+
+  // Sort by longest first, dedupe by exact (from, to), cap to 3.
+  alts.sort((a, b) => b.nights - a.nights);
+  const seen = new Set<string>();
+  return alts
+    .filter((a) => {
+      const key = `${a.from}_${a.to}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, 3);
 }
