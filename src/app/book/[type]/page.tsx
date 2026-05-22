@@ -8,6 +8,7 @@ import { checkAvailability } from "@/lib/booking/availability";
 import { getListingImages } from "@/lib/listing-images";
 import { BookingPanel } from "@/components/booking/BookingPanel";
 import { StayIncludes } from "@/components/booking/StayIncludes";
+import { ListingLongDescription } from "@/components/booking/ListingLongDescription";
 import { FLOORPLAN_LISTINGS, floorplanForSlug } from "@/lib/floorplan-listings";
 
 interface Props {
@@ -100,6 +101,10 @@ export default async function BookPage({ params, searchParams }: Props) {
         <AvailabilityBadge checkIn={checkIn} checkOut={checkOut} nights={nights} />
 
         <StayIncludes listingId={room.listingId} roomName={room.name} />
+
+        <div className="mb-8">
+          <ListingLongDescription listingId={room.listingId} variant="compact" />
+        </div>
 
         <BookingPanel
           initialQuote={quote}
