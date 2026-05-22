@@ -7,6 +7,7 @@ import { fetchQuote, QuoteError } from "@/lib/booking/quote";
 import { checkAvailability } from "@/lib/booking/availability";
 import { getListingImages } from "@/lib/listing-images";
 import { BookingPanel } from "@/components/booking/BookingPanel";
+import { StayIncludes } from "@/components/booking/StayIncludes";
 
 interface Props {
   params: { type: string };
@@ -77,6 +78,8 @@ export default async function BookPage({ params, searchParams }: Props) {
         <p className="font-display text-xl italic text-plymouth-charcoal mb-6">{room.tagline}</p>
 
         <AvailabilityBadge checkIn={checkIn} checkOut={checkOut} nights={nights} />
+
+        <StayIncludes listingId={room.listingId} roomName={room.name} />
 
         <BookingPanel
           initialQuote={quote}
