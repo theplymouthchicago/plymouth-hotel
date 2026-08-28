@@ -5,6 +5,17 @@ import { useEffect } from "react";
 
 export function BookingWidget() {
   useEffect(() => {
+    // Guesty widget calls window.open() which mobile browsers block as a popup.
+    // Intercept it and navigate in-tab instead.
+    const originalOpen = window.open.bind(window);
+    window.open = (url?: string | URL, target?: string, features?: string) => {
+      if (url && (target === "_blank" || target === undefined)) {
+        window.location.href = url.toString();
+        return null;
+      }
+      return originalOpen(url, target, features);
+    };
+
     let observer: MutationObserver | null = null;
     let clickHandler: ((e: MouseEvent) => void) | null = null;
     let isSelecting = false;
@@ -44,6 +55,7 @@ export function BookingWidget() {
     }, 500);
 
     return () => {
+      window.open = originalOpen;
       clearInterval(interval);
       observer?.disconnect();
       if (clickHandler) document.removeEventListener("click", clickHandler);
