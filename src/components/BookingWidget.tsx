@@ -23,12 +23,28 @@ export function BookingWidget() {
 
     const SITE_URL = "https://theplymouthchicago.guestybookings.com";
 
+    const toDateStr = (timestamp: string) => {
+      const d = new Date(Number(timestamp));
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    };
+
     const buildBookingUrl = () => {
-      const checkIn = (document.querySelector(".__super-input.check-in") as HTMLInputElement)?.value;
-      const checkOut = (document.querySelector(".__super-input.check-out") as HTMLInputElement)?.value;
+      // Try reading dates from Lightpick's selected-day markers first (more reliable on mobile)
+      const startEl = document.querySelector(".lightpick__day.is-start-date") as HTMLElement;
+      const endEl = document.querySelector(".lightpick__day.is-end-date") as HTMLElement;
+      const checkIn = startEl?.dataset?.time
+        ? toDateStr(startEl.dataset.time)
+        : (document.querySelector(".__super-input.check-in") as HTMLInputElement)?.value || "";
+      const checkOut = endEl?.dataset?.time
+        ? toDateStr(endEl.dataset.time)
+        : (document.querySelector(".__super-input.check-out") as HTMLInputElement)?.value || "";
       const city = (document.querySelector(".guesty-root-element select") as HTMLSelectElement)?.value || "Chicago";
 
-      const params = new URLSearchParams({ city, country: "United+States" });
+      // "United States" (with space) — URLSearchParams encodes space as + correctly
+      const params = new URLSearchParams({ city, country: "United States" });
       if (checkIn) params.set("checkIn", checkIn);
       if (checkOut) params.set("checkOut", checkOut);
       return `${SITE_URL}/en/properties?${params.toString()}`;
