@@ -18,11 +18,26 @@ export function BookingWidget() {
 
     let observer: MutationObserver | null = null;
     let clickHandler: ((e: MouseEvent) => void) | null = null;
+    let submitHandler: ((e: Event) => void) | null = null;
     let isSelecting = false;
+
+    const SITE_URL = "https://theplymouthchicago.guestybookings.com";
+
+    const buildBookingUrl = () => {
+      const checkIn = (document.querySelector(".__super-input.check-in") as HTMLInputElement)?.value;
+      const checkOut = (document.querySelector(".__super-input.check-out") as HTMLInputElement)?.value;
+      const city = (document.querySelector(".guesty-root-element select") as HTMLSelectElement)?.value || "Chicago";
+
+      const params = new URLSearchParams({ city, country: "United+States" });
+      if (checkIn) params.set("checkIn", checkIn);
+      if (checkOut) params.set("checkOut", checkOut);
+      return `${SITE_URL}/en/properties?${params.toString()}`;
+    };
 
     const setup = () => {
       const picker = document.querySelector(".lightpick") as HTMLElement;
-      if (!picker) return false;
+      const submitBtn = document.querySelector(".guesty-search-submit-btn") as HTMLElement;
+      if (!picker || !submitBtn) return false;
 
       // Prevent Lightpick from hiding the calendar while user is selecting dates
       observer = new MutationObserver(() => {
@@ -46,7 +61,15 @@ export function BookingWidget() {
         isSelecting = !!isCalendarClick;
       };
 
+      // Capture-phase handler fires before Guesty's handler.
+      // Navigate directly so mobile browsers never see window.open().
+      submitHandler = (e: Event) => {
+        e.stopPropagation();
+        window.location.href = buildBookingUrl();
+      };
+
       document.addEventListener("click", clickHandler);
+      submitBtn.addEventListener("click", submitHandler, { capture: true });
       return true;
     };
 
@@ -59,6 +82,10 @@ export function BookingWidget() {
       clearInterval(interval);
       observer?.disconnect();
       if (clickHandler) document.removeEventListener("click", clickHandler);
+      const submitBtn = document.querySelector(".guesty-search-submit-btn");
+      if (submitBtn && submitHandler) {
+        submitBtn.removeEventListener("click", submitHandler, { capture: true });
+      }
     };
   }, []);
 
