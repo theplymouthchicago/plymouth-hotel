@@ -34,10 +34,26 @@ export function BookingWidget() {
       return `${SITE_URL}/en/properties?${params.toString()}`;
     };
 
-    const setup = () => {
-      const picker = document.querySelector(".lightpick") as HTMLElement;
+    // Attach submit handler as soon as the button exists — don't wait for lightpick.
+    const setupSubmit = () => {
       const submitBtn = document.querySelector(".guesty-search-submit-btn") as HTMLElement;
-      if (!picker || !submitBtn) return false;
+      if (!submitBtn || submitHandler) return false;
+
+      // Capture-phase fires before Guesty's handler. Navigate directly so
+      // mobile browsers never encounter window.open().
+      submitHandler = (e: Event) => {
+        e.stopPropagation();
+        window.location.href = buildBookingUrl();
+      };
+
+      submitBtn.addEventListener("click", submitHandler, { capture: true });
+      submitBtn.addEventListener("touchend", submitHandler, { capture: true });
+      return true;
+    };
+
+    const setupPicker = () => {
+      const picker = document.querySelector(".lightpick") as HTMLElement;
+      if (!picker || observer) return false;
 
       // Prevent Lightpick from hiding the calendar while user is selecting dates
       observer = new MutationObserver(() => {
@@ -61,21 +77,15 @@ export function BookingWidget() {
         isSelecting = !!isCalendarClick;
       };
 
-      // Capture-phase handler fires before Guesty's handler.
-      // Navigate directly so mobile browsers never see window.open().
-      submitHandler = (e: Event) => {
-        e.stopPropagation();
-        window.location.href = buildBookingUrl();
-      };
-
       document.addEventListener("click", clickHandler);
-      submitBtn.addEventListener("click", submitHandler, { capture: true });
       return true;
     };
 
     const interval = setInterval(() => {
-      if (setup()) clearInterval(interval);
-    }, 500);
+      setupSubmit();
+      setupPicker();
+      if (submitHandler && observer) clearInterval(interval);
+    }, 300);
 
     return () => {
       window.open = originalOpen;
@@ -85,6 +95,7 @@ export function BookingWidget() {
       const submitBtn = document.querySelector(".guesty-search-submit-btn");
       if (submitBtn && submitHandler) {
         submitBtn.removeEventListener("click", submitHandler, { capture: true });
+        submitBtn.removeEventListener("touchend", submitHandler, { capture: true });
       }
     };
   }, []);
