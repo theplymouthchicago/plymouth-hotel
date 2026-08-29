@@ -152,7 +152,7 @@ export function BookingWidget() {
         {/* Mobile fallback — plain link, no JS required */}
         <div className="md:hidden flex justify-center">
           <a
-            href="https://theplymouthchicago.guestybookings.com/en/properties?city=Chicago&country=United+States"
+            href="/rooms"
             className="inline-flex items-center gap-3 bg-plymouth-gold text-plymouth-black font-body font-semibold text-base px-10 py-4 rounded-sm hover:bg-plymouth-gold/90 transition-colors"
           >
             Check Availability &amp; Book
