@@ -141,12 +141,23 @@ export function BookingWidget() {
           </p>
         </div>
 
-        {/* Guesty Search Bar Widget */}
-        <div className="max-w-4xl mx-auto">
+        {/* Guesty Search Bar Widget — desktop only */}
+        <div className="hidden md:block max-w-4xl mx-auto">
           <div
             id="search-widget_IO312PWQ"
             className="guesty-root-element guesty-widget__container"
           />
+        </div>
+
+        {/* Mobile fallback — plain link, no JS required */}
+        <div className="md:hidden flex justify-center">
+          <a
+            href="https://theplymouthchicago.guestybookings.com/en/properties?city=Chicago&country=United+States"
+            className="inline-flex items-center gap-3 bg-plymouth-gold text-plymouth-black font-body font-semibold text-base px-10 py-4 rounded-sm hover:bg-plymouth-gold/90 transition-colors"
+          >
+            Check Availability &amp; Book
+            <span aria-hidden="true">→</span>
+          </a>
         </div>
 
         <p className="text-center text-xs text-gray-600 mt-8">
