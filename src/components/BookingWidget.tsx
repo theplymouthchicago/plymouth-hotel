@@ -55,17 +55,22 @@ export function BookingWidget() {
       const submitBtn = document.querySelector(".guesty-search-submit-btn") as HTMLElement;
       if (!submitBtn || submitHandler) return false;
 
-      // Capture-phase fires before Guesty's handler. stopImmediatePropagation
-      // cuts off ALL remaining listeners (including Guesty's window.open call)
-      // so only our navigation runs.
+      // Attach to DOCUMENT with capture:true so our listener fires during the
+      // capture phase, before the event reaches the button's own at-target
+      // listeners (where Guesty's handler lives). stopImmediatePropagation
+      // then kills all remaining listeners so Guesty never runs.
       submitHandler = (e: Event) => {
+        const target = e.target as HTMLElement;
+        if (!target) return;
+        const btn = document.querySelector(".guesty-search-submit-btn");
+        if (target !== btn && !target.closest(".guesty-search-submit-btn")) return;
         e.stopImmediatePropagation();
         e.preventDefault();
         window.location.href = buildBookingUrl();
       };
 
-      submitBtn.addEventListener("click", submitHandler, { capture: true });
-      submitBtn.addEventListener("touchend", submitHandler, { capture: true });
+      document.addEventListener("click", submitHandler, { capture: true });
+      document.addEventListener("touchend", submitHandler, { capture: true });
       return true;
     };
 
@@ -110,10 +115,9 @@ export function BookingWidget() {
       clearInterval(interval);
       observer?.disconnect();
       if (clickHandler) document.removeEventListener("click", clickHandler);
-      const submitBtn = document.querySelector(".guesty-search-submit-btn");
-      if (submitBtn && submitHandler) {
-        submitBtn.removeEventListener("click", submitHandler, { capture: true });
-        submitBtn.removeEventListener("touchend", submitHandler, { capture: true });
+      if (submitHandler) {
+        document.removeEventListener("click", submitHandler, { capture: true });
+        document.removeEventListener("touchend", submitHandler, { capture: true });
       }
     };
   }, []);
