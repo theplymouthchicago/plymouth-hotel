@@ -55,10 +55,12 @@ export function BookingWidget() {
       const submitBtn = document.querySelector(".guesty-search-submit-btn") as HTMLElement;
       if (!submitBtn || submitHandler) return false;
 
-      // Capture-phase fires before Guesty's handler. Navigate directly so
-      // mobile browsers never encounter window.open().
+      // Capture-phase fires before Guesty's handler. stopImmediatePropagation
+      // cuts off ALL remaining listeners (including Guesty's window.open call)
+      // so only our navigation runs.
       submitHandler = (e: Event) => {
-        e.stopPropagation();
+        e.stopImmediatePropagation();
+        e.preventDefault();
         window.location.href = buildBookingUrl();
       };
 
