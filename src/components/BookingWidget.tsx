@@ -149,15 +149,48 @@ export function BookingWidget() {
           />
         </div>
 
-        {/* Mobile fallback — plain link, no JS required */}
-        <div className="md:hidden flex justify-center">
-          <a
-            href="/rooms"
-            className="inline-flex items-center gap-3 bg-plymouth-gold text-plymouth-black font-body font-semibold text-base px-10 py-4 rounded-sm hover:bg-plymouth-gold/90 transition-colors"
+        {/* Mobile booking form — native date inputs, no JS popup issues */}
+        <div className="md:hidden max-w-sm mx-auto">
+          <form
+            action="https://theplymouthchicago.guestybookings.com/en/properties"
+            method="get"
+            target="_self"
           >
-            Check Availability &amp; Book
-            <span aria-hidden="true">→</span>
-          </a>
+            <input type="hidden" name="city" value="Chicago" />
+            <input type="hidden" name="country" value="United States" />
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <div>
+                <label className="block text-[10px] uppercase tracking-[0.2em] text-plymouth-gold mb-1.5">
+                  Check-in
+                </label>
+                <input
+                  type="date"
+                  name="checkIn"
+                  required
+                  className="w-full bg-white/10 border border-plymouth-gold/40 px-3 py-3 text-sm text-white focus:outline-none focus:border-plymouth-gold"
+                  style={{ colorScheme: "dark" }}
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] uppercase tracking-[0.2em] text-plymouth-gold mb-1.5">
+                  Check-out
+                </label>
+                <input
+                  type="date"
+                  name="checkOut"
+                  required
+                  className="w-full bg-white/10 border border-plymouth-gold/40 px-3 py-3 text-sm text-white focus:outline-none focus:border-plymouth-gold"
+                  style={{ colorScheme: "dark" }}
+                />
+              </div>
+            </div>
+            <button
+              type="submit"
+              className="w-full bg-plymouth-gold text-plymouth-black font-body font-semibold text-sm uppercase tracking-[0.2em] py-4 hover:bg-plymouth-gold/90 transition-colors"
+            >
+              Check Availability →
+            </button>
+          </form>
         </div>
 
         <p className="text-center text-xs text-gray-600 mt-8">
