@@ -1,32 +1,10 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect, useState } from "react";
-
-const GUESTY_HOST = "https://theplymouthchicago.guestybookings.com";
-
-// Primary listing IDs per floorplan — goes to property detail page
-// (bypasses search results which use window.open() on mobile)
-const LISTINGS: Record<string, string> = {
-  "2": "69b8610659a0a7001528058c",
-  "3": "69b863afab91d0002330efdb",
-  "4": "69b866a2139149001c905bfa",
-};
+import { useEffect } from "react";
 
 export function BookingWidget() {
-  const [checkIn, setCheckIn] = useState("");
-  const [checkOut, setCheckOut] = useState("");
-  const [beds, setBeds] = useState("2");
-
   const today = new Date().toISOString().split("T")[0];
-  const canBook = !!(checkIn && checkOut && checkOut > checkIn);
-
-  const handleBook = () => {
-    if (!canBook) return;
-    const listingId = LISTINGS[beds];
-    const params = new URLSearchParams({ checkIn, checkOut, minOccupancy: beds, adults: "2" });
-    window.location.href = `${GUESTY_HOST}/en/properties/${listingId}?${params.toString()}`;
-  };
 
   useEffect(() => {
     // Guesty desktop widget calls window.open() — intercept and navigate in-tab instead.
@@ -152,8 +130,8 @@ export function BookingWidget() {
           />
         </div>
 
-        {/* Mobile booking form — native inputs, navigates directly to property detail page */}
-        <div className="md:hidden max-w-sm mx-auto">
+        {/* Mobile booking form — pure HTML, zero JS, routes through /api/book → Guesty property detail */}
+        <form method="GET" action="/api/book" className="md:hidden max-w-sm mx-auto">
           <div className="grid grid-cols-2 gap-3 mb-3">
             <div>
               <label className="block text-[10px] uppercase tracking-[0.2em] text-plymouth-gold mb-1.5">
@@ -161,9 +139,9 @@ export function BookingWidget() {
               </label>
               <input
                 type="date"
-                value={checkIn}
+                name="checkIn"
+                required
                 min={today}
-                onChange={(e) => { setCheckIn(e.target.value); setCheckOut(""); }}
                 className="w-full bg-white/10 border border-plymouth-gold/40 px-3 py-3 text-sm text-white focus:outline-none focus:border-plymouth-gold"
                 style={{ colorScheme: "dark" }}
               />
@@ -174,9 +152,9 @@ export function BookingWidget() {
               </label>
               <input
                 type="date"
-                value={checkOut}
-                min={checkIn || today}
-                onChange={(e) => setCheckOut(e.target.value)}
+                name="checkOut"
+                required
+                min={today}
                 className="w-full bg-white/10 border border-plymouth-gold/40 px-3 py-3 text-sm text-white focus:outline-none focus:border-plymouth-gold"
                 style={{ colorScheme: "dark" }}
               />
@@ -187,8 +165,8 @@ export function BookingWidget() {
               Bedrooms
             </label>
             <select
-              value={beds}
-              onChange={(e) => setBeds(e.target.value)}
+              name="beds"
+              defaultValue="2"
               className="w-full bg-white/10 border border-plymouth-gold/40 px-3 py-3 text-sm text-white focus:outline-none focus:border-plymouth-gold appearance-none"
               style={{ colorScheme: "dark" }}
             >
@@ -198,14 +176,12 @@ export function BookingWidget() {
             </select>
           </div>
           <button
-            type="button"
-            onClick={handleBook}
-            disabled={!canBook}
-            className="w-full bg-plymouth-gold text-plymouth-black font-body font-semibold text-sm uppercase tracking-[0.2em] py-4 hover:bg-plymouth-gold/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            type="submit"
+            className="w-full bg-plymouth-gold text-plymouth-black font-body font-semibold text-sm uppercase tracking-[0.2em] py-4 hover:bg-plymouth-gold/90 transition-colors"
           >
             Check Availability →
           </button>
-        </div>
+        </form>
 
         <p className="text-center text-xs text-gray-600 mt-8">
           Instant booking &middot; Secure checkout &middot; Best rate guaranteed
