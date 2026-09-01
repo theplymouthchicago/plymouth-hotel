@@ -1,12 +1,35 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+
+const GUESTY_HOST = "https://theplymouthchicago.guestybookings.com";
+
+// Primary listing IDs per floorplan — goes to property detail page
+// (bypasses search results which use window.open() on mobile)
+const LISTINGS: Record<string, string> = {
+  "2": "69b8610659a0a7001528058c",
+  "3": "69b863afab91d0002330efdb",
+  "4": "69b866a2139149001c905bfa",
+};
 
 export function BookingWidget() {
+  const [checkIn, setCheckIn] = useState("");
+  const [checkOut, setCheckOut] = useState("");
+  const [beds, setBeds] = useState("2");
+
+  const today = new Date().toISOString().split("T")[0];
+  const canBook = !!(checkIn && checkOut && checkOut > checkIn);
+
+  const handleBook = () => {
+    if (!canBook) return;
+    const listingId = LISTINGS[beds];
+    const params = new URLSearchParams({ checkIn, checkOut, minOccupancy: beds, adults: "2" });
+    window.location.href = `${GUESTY_HOST}/en/properties/${listingId}?${params.toString()}`;
+  };
+
   useEffect(() => {
-    // Guesty widget calls window.open() which mobile browsers block as a popup.
-    // Intercept it and navigate in-tab instead.
+    // Guesty desktop widget calls window.open() — intercept and navigate in-tab instead.
     const originalOpen = window.open.bind(window);
     window.open = (url?: string | URL, target?: string, features?: string) => {
       if (url && (target === "_blank" || target === undefined)) {
@@ -32,33 +55,24 @@ export function BookingWidget() {
     };
 
     const buildBookingUrl = () => {
-      // Try reading dates from Lightpick's selected-day markers first (more reliable on mobile)
       const startEl = document.querySelector(".lightpick__day.is-start-date") as HTMLElement;
       const endEl = document.querySelector(".lightpick__day.is-end-date") as HTMLElement;
-      const checkIn = startEl?.dataset?.time
+      const checkInVal = startEl?.dataset?.time
         ? toDateStr(startEl.dataset.time)
         : (document.querySelector(".__super-input.check-in") as HTMLInputElement)?.value || "";
-      const checkOut = endEl?.dataset?.time
+      const checkOutVal = endEl?.dataset?.time
         ? toDateStr(endEl.dataset.time)
         : (document.querySelector(".__super-input.check-out") as HTMLInputElement)?.value || "";
       const city = (document.querySelector(".guesty-root-element select") as HTMLSelectElement)?.value || "Chicago";
-
-      // "United States" (with space) — URLSearchParams encodes space as + correctly
       const params = new URLSearchParams({ city, country: "United States" });
-      if (checkIn) params.set("checkIn", checkIn);
-      if (checkOut) params.set("checkOut", checkOut);
+      if (checkInVal) params.set("checkIn", checkInVal);
+      if (checkOutVal) params.set("checkOut", checkOutVal);
       return `${SITE_URL}/en/properties?${params.toString()}`;
     };
 
-    // Attach submit handler as soon as the button exists — don't wait for lightpick.
     const setupSubmit = () => {
       const submitBtn = document.querySelector(".guesty-search-submit-btn") as HTMLElement;
       if (!submitBtn || submitHandler) return false;
-
-      // Attach to DOCUMENT with capture:true so our listener fires during the
-      // capture phase, before the event reaches the button's own at-target
-      // listeners (where Guesty's handler lives). stopImmediatePropagation
-      // then kills all remaining listeners so Guesty never runs.
       submitHandler = (e: Event) => {
         const target = e.target as HTMLElement;
         if (!target) return;
@@ -68,7 +82,6 @@ export function BookingWidget() {
         e.preventDefault();
         window.location.href = buildBookingUrl();
       };
-
       document.addEventListener("click", submitHandler, { capture: true });
       document.addEventListener("touchend", submitHandler, { capture: true });
       return true;
@@ -77,29 +90,20 @@ export function BookingWidget() {
     const setupPicker = () => {
       const picker = document.querySelector(".lightpick") as HTMLElement;
       if (!picker || observer) return false;
-
-      // Prevent Lightpick from hiding the calendar while user is selecting dates
       observer = new MutationObserver(() => {
         if (isSelecting && picker.classList.contains("is-hidden")) {
           picker.classList.remove("is-hidden");
         }
       });
-
-      observer.observe(picker, {
-        attributes: true,
-        attributeFilter: ["class"],
-      });
-
+      observer.observe(picker, { attributes: true, attributeFilter: ["class"] });
       clickHandler = (e: MouseEvent) => {
         const target = e.target as HTMLElement;
         const isCalendarClick =
           target.closest(".lightpick") ||
           target.closest(".__super-input") ||
           target.closest(".guesty-search-widget__datepicker");
-
         isSelecting = !!isCalendarClick;
       };
-
       document.addEventListener("click", clickHandler);
       return true;
     };
@@ -124,7 +128,6 @@ export function BookingWidget() {
 
   return (
     <section className="py-section section-padding bg-plymouth-black relative" id="booking">
-      {/* Subtle gold accent */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-px bg-gradient-to-r from-transparent via-plymouth-gold/30 to-transparent" />
 
       <div className="max-w-container mx-auto relative z-10">
@@ -149,48 +152,59 @@ export function BookingWidget() {
           />
         </div>
 
-        {/* Mobile booking form — native date inputs, no JS popup issues */}
+        {/* Mobile booking form — native inputs, navigates directly to property detail page */}
         <div className="md:hidden max-w-sm mx-auto">
-          <form
-            action="https://theplymouthchicago.guestybookings.com/en/properties"
-            method="get"
-            target="_self"
-          >
-            <input type="hidden" name="city" value="Chicago" />
-            <input type="hidden" name="country" value="United States" />
-            <div className="grid grid-cols-2 gap-3 mb-3">
-              <div>
-                <label className="block text-[10px] uppercase tracking-[0.2em] text-plymouth-gold mb-1.5">
-                  Check-in
-                </label>
-                <input
-                  type="date"
-                  name="checkIn"
-                  required
-                  className="w-full bg-white/10 border border-plymouth-gold/40 px-3 py-3 text-sm text-white focus:outline-none focus:border-plymouth-gold"
-                  style={{ colorScheme: "dark" }}
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] uppercase tracking-[0.2em] text-plymouth-gold mb-1.5">
-                  Check-out
-                </label>
-                <input
-                  type="date"
-                  name="checkOut"
-                  required
-                  className="w-full bg-white/10 border border-plymouth-gold/40 px-3 py-3 text-sm text-white focus:outline-none focus:border-plymouth-gold"
-                  style={{ colorScheme: "dark" }}
-                />
-              </div>
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            <div>
+              <label className="block text-[10px] uppercase tracking-[0.2em] text-plymouth-gold mb-1.5">
+                Check-in
+              </label>
+              <input
+                type="date"
+                value={checkIn}
+                min={today}
+                onChange={(e) => { setCheckIn(e.target.value); setCheckOut(""); }}
+                className="w-full bg-white/10 border border-plymouth-gold/40 px-3 py-3 text-sm text-white focus:outline-none focus:border-plymouth-gold"
+                style={{ colorScheme: "dark" }}
+              />
             </div>
-            <button
-              type="submit"
-              className="w-full bg-plymouth-gold text-plymouth-black font-body font-semibold text-sm uppercase tracking-[0.2em] py-4 hover:bg-plymouth-gold/90 transition-colors"
+            <div>
+              <label className="block text-[10px] uppercase tracking-[0.2em] text-plymouth-gold mb-1.5">
+                Check-out
+              </label>
+              <input
+                type="date"
+                value={checkOut}
+                min={checkIn || today}
+                onChange={(e) => setCheckOut(e.target.value)}
+                className="w-full bg-white/10 border border-plymouth-gold/40 px-3 py-3 text-sm text-white focus:outline-none focus:border-plymouth-gold"
+                style={{ colorScheme: "dark" }}
+              />
+            </div>
+          </div>
+          <div className="mb-3">
+            <label className="block text-[10px] uppercase tracking-[0.2em] text-plymouth-gold mb-1.5">
+              Bedrooms
+            </label>
+            <select
+              value={beds}
+              onChange={(e) => setBeds(e.target.value)}
+              className="w-full bg-white/10 border border-plymouth-gold/40 px-3 py-3 text-sm text-white focus:outline-none focus:border-plymouth-gold appearance-none"
+              style={{ colorScheme: "dark" }}
             >
-              Check Availability →
-            </button>
-          </form>
+              <option value="2">2 Bedroom — up to 4 guests</option>
+              <option value="3">3 Bedroom — up to 6 guests</option>
+              <option value="4">4 Bedroom — up to 10 guests</option>
+            </select>
+          </div>
+          <button
+            type="button"
+            onClick={handleBook}
+            disabled={!canBook}
+            className="w-full bg-plymouth-gold text-plymouth-black font-body font-semibold text-sm uppercase tracking-[0.2em] py-4 hover:bg-plymouth-gold/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Check Availability →
+          </button>
         </div>
 
         <p className="text-center text-xs text-gray-600 mt-8">
