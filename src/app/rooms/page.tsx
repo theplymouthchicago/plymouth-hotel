@@ -15,7 +15,13 @@ export const metadata: Metadata = {
 // photos surface on the public site without a redeploy.
 export const revalidate = 300;
 
-export default async function RoomsPage() {
+export default async function RoomsPage({
+  searchParams,
+}: {
+  searchParams?: Record<string, string | string[]>;
+}) {
+  const checkIn = typeof searchParams?.checkIn === "string" ? searchParams.checkIn : "";
+  const checkOut = typeof searchParams?.checkOut === "string" ? searchParams.checkOut : "";
   const rooms = await Promise.all(
     ROOMS.map(async (r) => {
       const images = await getListingImages(r.listingId);
@@ -108,7 +114,7 @@ export default async function RoomsPage() {
                   ))}
                 </div>
 
-                <RoomBookingControls roomSlug={room.slug} maxGuests={room.maxGuests} listingId={room.listingId} />
+                <RoomBookingControls roomSlug={room.slug} maxGuests={room.maxGuests} listingId={room.listingId} initialCheckIn={checkIn} initialCheckOut={checkOut} />
 
                 <Link
                   href={`/rooms/${room.slug}`}

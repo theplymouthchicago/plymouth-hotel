@@ -9,14 +9,16 @@ interface Props {
   roomSlug: string;
   maxGuests: number;
   listingId: string;
+  initialCheckIn?: string;
+  initialCheckOut?: string;
 }
 
 const GUESTY_HOST = "https://theplymouthchicago.guestybookings.com";
 
-export function RoomBookingControls({ roomSlug, maxGuests, listingId }: Props) {
+export function RoomBookingControls({ roomSlug, maxGuests, listingId, initialCheckIn = "", initialCheckOut = "" }: Props) {
   const [range, setRange] = useState<DateRangeValue>({});
-  const [checkIn, setCheckIn] = useState("");
-  const [checkOut, setCheckOut] = useState("");
+  const [checkIn, setCheckIn] = useState(initialCheckIn);
+  const [checkOut, setCheckOut] = useState(initialCheckOut);
   const [guests, setGuests] = useState(2);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -65,14 +67,12 @@ export function RoomBookingControls({ roomSlug, maxGuests, listingId }: Props) {
     }
     setSubmitting(true);
     const params = new URLSearchParams({
-      city: "Chicago",
-      country: "United States",
       checkIn: ci,
       checkOut: co,
       minOccupancy: String(guests),
       adults: String(guests),
     });
-    window.location.href = `${GUESTY_HOST}/en/properties?${params.toString()}`;
+    window.location.href = `${GUESTY_HOST}/en/properties/${listingId}?${params.toString()}`;
   };
 
   return (

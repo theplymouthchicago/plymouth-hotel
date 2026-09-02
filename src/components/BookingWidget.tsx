@@ -130,8 +130,8 @@ export function BookingWidget() {
           />
         </div>
 
-        {/* Mobile booking form — pure HTML, zero JS, routes through /api/book → Guesty property detail */}
-        <form method="GET" action="/api/book" className="md:hidden max-w-sm mx-auto">
+        {/* Mobile booking form — pure HTML, zero JS, sends dates to /rooms to show all suite options */}
+        <form method="GET" action="/rooms" className="md:hidden max-w-sm mx-auto">
           <div className="grid grid-cols-2 gap-3 mb-3">
             <div>
               <label className="block text-[10px] uppercase tracking-[0.2em] text-plymouth-gold mb-1.5">
@@ -159,21 +159,6 @@ export function BookingWidget() {
                 style={{ colorScheme: "dark" }}
               />
             </div>
-          </div>
-          <div className="mb-3">
-            <label className="block text-[10px] uppercase tracking-[0.2em] text-plymouth-gold mb-1.5">
-              Bedrooms
-            </label>
-            <select
-              name="beds"
-              defaultValue="2"
-              className="w-full bg-white/10 border border-plymouth-gold/40 px-3 py-3 text-sm text-white focus:outline-none focus:border-plymouth-gold appearance-none"
-              style={{ colorScheme: "dark" }}
-            >
-              <option value="2">2 Bedroom — up to 4 guests</option>
-              <option value="3">3 Bedroom — up to 6 guests</option>
-              <option value="4">4 Bedroom — up to 10 guests</option>
-            </select>
           </div>
           <button
             type="submit"
